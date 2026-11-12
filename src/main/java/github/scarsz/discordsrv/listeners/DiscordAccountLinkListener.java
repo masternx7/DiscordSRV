@@ -23,6 +23,7 @@ package github.scarsz.discordsrv.listeners;
 import github.scarsz.discordsrv.Debug;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.events.DiscordPrivateMessageReceivedEvent;
+import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import github.scarsz.discordsrv.objects.managers.link.LinkResult;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import net.dv8tion.jda.api.entities.Member;
@@ -78,7 +79,15 @@ public class DiscordAccountLinkListener extends ListenerAdapter {
         if (!event.getChannel().equals(linkChannel)) return;
 
         Message receivedMessage = event.getMessage();
-        LinkResult result = DiscordSRV.getPlugin().getAccountLinkManager().processLink(receivedMessage.getContentRaw(), event.getAuthor().getId());
+        AccountLinkManager manager = DiscordSRV.getPlugin().getAccountLinkManager();
+        if (manager == null) return;
+
+        if (manager.getUuid(event.getAuthor().getId()) != null) {
+            receivedMessage.delete().queue(null, ignoreFailedToDeleteMessage);
+            return;
+        }
+
+        LinkResult result = manager.processLink(receivedMessage.getContentRaw(), event.getAuthor().getId());
         Message linkedMessage = result.isSuccess() ? DiscordSRV.getPlugin().getAccountLinkedMessage(result) : null;
         if (result.getMessage() != null || linkedMessage != null) {
             int deleteSeconds = DiscordSRV.config().getIntElse("account-linking.message-delete-seconds", 0);
