@@ -34,7 +34,7 @@ public class DiscordSRVMinecraftRenderer extends DefaultMinecraftRenderer {
 
     @Override
     public @Nullable Component appendEmoteMention(@NonNull Component component, @NonNull String name, @NonNull String id) {
-        String behavior = DiscordSRV.config().getString("DiscordChatChannelEmoteBehavior");
+        String behavior = DiscordSRV.config().getString("chat-channel.emote-behavior");
         return behavior.equalsIgnoreCase("name")
                 ? component.append(Component.text(":" + name + ":"))
                 : component;

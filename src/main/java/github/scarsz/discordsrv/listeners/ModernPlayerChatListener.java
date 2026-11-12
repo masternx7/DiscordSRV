@@ -34,7 +34,7 @@ public class ModernPlayerChatListener implements Listener {
 
     @EventHandler(priority = EventPriority.MONITOR)
     public void onAsyncChat(AsyncChatEvent event) {
-        if (!DiscordSRV.config().getBooleanElse("UseModernPaperChatEvent", false)) return;
+        if (!DiscordSRV.config().getBooleanElse("plugin-hooks.use-modern-paper-chat-event", false)) return;
 
         SchedulerUtil.runTaskAsynchronously(DiscordSRV.getPlugin(), () -> {
             String json;

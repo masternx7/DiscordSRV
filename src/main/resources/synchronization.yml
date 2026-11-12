@@ -1,0 +1,19 @@
+nickname-synchronization:
+  enabled: false
+  cycle-time: 3
+  format: "%displayname%"
+
+group-role-synchronization:
+  groups-and-roles-to-sync: {"trusted": "000000000000000000", "vip": "000000000000000000"}
+  minecraft-is-authoritative: true
+  one-way: false
+  enable-deny-permission: false
+  primary-group-only: false
+  on-link: true
+  cycle-time: 5
+  cycle-completely: false
+
+ban-synchronization:
+  discord-to-minecraft: false
+  discord-to-minecraft-reason: "&cYou have been banned until further notice from the server because you were banned on our Discord server."
+  minecraft-to-discord: false

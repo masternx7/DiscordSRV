@@ -187,7 +187,7 @@ public class MessageUtil {
      * @see #reserializeToMinecraft(String)
      */
     public static Component reserializeToMinecraftBasedOnConfig(String discordMessage) {
-        boolean enabled = DiscordSRV.config().getBoolean("Experiment_MCDiscordReserializer_ToMinecraft");
+        boolean enabled = DiscordSRV.config().getBoolean("experiments.reserializer.to-minecraft");
         if (enabled) {
             return reserializeToMinecraft(discordMessage);
         } else {

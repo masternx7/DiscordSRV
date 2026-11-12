@@ -1,0 +1,149 @@
+# DiscordSRV Configuration
+# Need help? Join our Discord, https://discordsrv.com/discord
+
+# Don't touch pls
+config-version: ${version}
+
+bot:
+  token: "BOTTOKEN"
+
+channels:
+  links: {"global": "000000000000000000"}
+  console-id: "000000000000000000"
+
+experiments:
+  # JDBC (MySQL/MariaDB)
+  jdbc:
+    account-link-backend: "jdbc:mysql://HOST:PORT/DATABASE?autoReconnect=true&useSSL=false"
+    table-prefix: "discordsrv"
+    username: "username"
+    password: "password"
+
+  # Webhook delivery
+  webhook:
+    chat-message-delivery: false
+    chat-message-username-format: "%displayname%"
+    chat-message-format: "%message%"
+    chat-message-username-from-discord: false
+    chat-message-avatar-from-discord: false
+    chat-message-username-filters: {}
+
+  reserializer:
+    to-discord: false
+    to-minecraft: false
+    in-broadcast: false
+
+# Embed & webhook image/avatar url format
+# Leave blank to use a default value
+# Available placeholders: {texture} {username} {uuid} {uuid-nodashes} {size}
+avatar-url: ""
+
+general:
+  cancel-console-command-if-logging-failed: true
+  forced-language: none
+  force-tlsv12: true
+  noop-hostname-verifier: false
+  maximum-attempts-for-system-dns-before-using-fallback-dns: 3
+  timestamp-format: EEE, d. MMM yyyy HH:mm:ss z
+  date-format: yyyy-MM-dd
+  # https://docs.discordsrv.com/config/#Timezone
+  timezone: default
+  # Whether a sound should be sent to the player in Minecraft when they are mentioned from Discord
+  minecraft-mention-sound: true
+
+plugin-hooks:
+  disabled: []
+  enable-presence-information: false
+  use-modern-paper-chat-event: false
+
+game-status:
+  status: ["playing Minecraft"]
+  online-status: ONLINE
+  update-rate-in-minutes: 2
+
+chat-channel:
+  discord-to-minecraft: true
+  minecraft-to-discord: true
+  truncate-length: 256
+  translate-mentions: true
+  allowed-mentions: [user, channel, emote]
+  emoji-behavior: "name"
+  emote-behavior: "name"
+  prefix-required-to-process-message: ""
+  prefix-acts-as-blacklist: false
+  roles-allowed-to-use-color-codes-in-chat: ["Developer", "Owner", "Admin", "Moderator"]
+  broadcast-discord-messages-to-console: true
+  require-linked-account: false
+  block-bots: false
+  block-webhooks: true
+  blocked-ids: ["000000000000000000", "000000000000000000", "000000000000000000"]
+  blocked-roles-as-whitelist: false
+  blocked-role-ids: ["000000000000000000", "000000000000000000", "000000000000000000"]
+  roles-selection-as-whitelist: false
+  roles-selection: ["Don't show me!", "Misc role"]
+  role-aliases: {"Developer": "Dev"}
+  game-filters: {}
+  discord-filters: {".*Online players \\(.*": "", ".*\\*\\*No online players\\*\\*.*": ""}
+
+  console-command:
+    enabled: true
+    notify-errors: true
+    prefix: "!c"
+    roles-allowed: ["Owner", "Developer"]
+    whitelist: ["say", "lag", "tps"]
+    whitelist-bypass-roles: ["Owner", "Developer"]
+    whitelist-acts-as-blacklist: false
+    expiration: 0
+    expiration-delete-request: true
+
+  list-command:
+    enabled: true
+    message: "playerlist"
+    expiration: 10
+    expiration-delete-request: true
+
+console-channel:
+  usage-log: "Console-%date%.log"
+  blacklist-acts-as-whitelist: false
+  blacklisted-commands: ["?", "op", "deop", "execute"]
+  filters: {".*(?i)async chat thread.*": "", ".*There are \\d+ (?:of a max of|out of maximum) \\d+ players online.*": ""}
+  levels: [info, warn, error]
+  use-code-blocks: true
+  block-bots: true
+
+channel-topic-updater:
+  channel-topics-at-shutdown-enabled: true
+  rate-in-minutes: 10
+
+channel-updater:
+  - channel-id: "0000000000000000"
+    format: "%playercount% players online"
+    shutdown-format: "Server is offline"
+    update-interval: 10
+  - channel-id: "0000000000000000"
+    format: "Current TPS: %tps%"
+    shutdown-format: "Server is offline"
+    update-interval: 10
+
+canned-responses: {"!ip": "yourserveripchange.me", "!site": "http://yoursiteurl.net"}
+
+account-linking:
+  console-commands: ["", "", ""]
+  unlinked-console-commands: ["", "", ""]
+  role-name-to-add-user-to: "Linked"
+  allow-relink-by-sending-a-new-code: false
+  use-pm: true
+  message-delete-seconds: 0
+
+server-watchdog:
+  enabled: true
+  timeout: 30
+  message-count: 3
+
+proxy:
+  host: "example.com"
+  port: 1234
+  user: "USERNAME"
+  password: "PASSWORD"
+
+debug: []

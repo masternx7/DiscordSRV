@@ -25,6 +25,7 @@ import github.scarsz.discordsrv.DiscordSRV;
 import lombok.Getter;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -544,21 +545,6 @@ public class LangUtil {
             put(Language.DA, "Aktivere {plugin} hook");
             put(Language.UK, "Активація {plugin} підключення");
             put(Language.NB, "Aktiverer {plugin}-tilkopling");
-        }}), NO_CHAT_PLUGIN_HOOKED(new HashMap<Language, String>() {{
-            put(Language.EN, "No chat plugin hooks enabled");
-            put(Language.FR, "Aucun accrochage de plugin activé");
-            put(Language.DE, "Keine Pluginverbindungen aktiviert");
-            put(Language.JA, "チャットプラグインへの接続は一つもありません");
-            put(Language.KO, "활성화된 채팅 플러그인 연동 없음");
-            put(Language.NL, "Geen chat plugin hooks ingeschakeld");
-            put(Language.ES, "Sin complementos");
-            put(Language.RU, "Плагинов для управления игровым чатом не обнаружено");
-            put(Language.ET, "Ühegi vestlusplugina haakimine pole lubatud");
-            put(Language.ZH, "未啟用鉤取任何聊天插件");
-            put(Language.PL, "Żadna wtyczka czatu nie jest włączona");
-            put(Language.DA, "Ingen chat plugin hooks aktiveret");
-            put(Language.UK, "плагінів для управління ігровим чатом не виявлено");
-            put(Language.NB, "Ingen chatutvidelsestilkoplinger er aktivert");
         }}), CHAT_CANCELLATION_DETECTOR_ENABLED(new HashMap<Language, String>() {{
             put(Language.EN, "Chat event cancellation detector has been enabled");
             put(Language.FR, "Détecteur d'annulation d'événement de chat vient d'être activé");
@@ -800,20 +786,20 @@ public class LangUtil {
             put(Language.UK, "під час обробки вашої команди сталася Внутрішня помилка.");
             put(Language.NB, "En intern feil oppstod under behandlingen av kommandoen din.");
         }}), RESYNC_WHEN_GROUP_SYNC_DISABLED(new HashMap<Language, String>() {{
-            put(Language.EN, "Group synchonization requires valid GroupRoleSynchronizationGroupsAndRolesToSync entries in synchronization.yml");
-            put(Language.FR, "La synchronisation de groupe nécessite des entrées GroupRoleSynchronizationGroupsAndRolesToSync valides dans synchronization.yml");
-            put(Language.DE, "Für die Gruppensynchronisierung sind gültige GroupRoleSynchronizationGroupsAndRolesToSync-Einträge in synchronization.yml erforderlich");
-            put(Language.JA, "グループの同期には、synchronization.ymlの有効なGroupRoleSynchronizationGroupsAndRolesToSyncエントリが必要です。");
-            put(Language.KO, "그룹 동기화에는 동기화에 유효한 GroupRoleSynchronizationGroupsAndRolesToSync 항목이 synchronization.yml 합니다.");
-            put(Language.NL, "Groepsynchronisatie vereist geldige GroupRoleSynchronizationGroupsAndRolesToSync-vermeldingen in synchronization.yml");
-            put(Language.ES, "La sincronización de grupo requiere entradas válidas de GroupRoleSynchronizationGroupsAndRolesToSync en synchronization.yml");
-            put(Language.RU, "Синхронизация группы требует допустимых записей GroupRoleSynchronizationGroupsAndRolesToSync в synchronization.yml");
-            put(Language.ET, "Grupi sünkroonimiseks on vaja kehtivaid GroupRoleSynchronizationGroupsAndRolesToSync kirjeid failis synchronization.yml");
-            put(Language.ZH, "群組同步需要在synchronization.yml中有效的GroupRoleSynchronizationGroupsAndRolesToSync條目");
-            put(Language.PL, "Synchronizacja grupowa wymaga ważnego GroupRoleSynchronizationGroupsAndRolesToSync wpisu w synchronization.yml");
-            put(Language.DA, "Gruppe synkronisation kræver valid GroupRoleSynchronizationGroupsAndRolesToSync entréer i synchronization.yml");
-            put(Language.UK, "Синхронізація групи вимагає дійсних записів GroupRoleSynchronizationGroupsAndRolesToSync у synchronization.yml");
-            put(Language.NB, "Gruppesynkronisering krever gyldig GroupRoleSynchronizationGroupsAndRolesToSync-oppføringer i synchronization.yml");
+            put(Language.EN, "Group synchonization requires valid group-role-synchronization.groups-and-roles-to-sync entries in synchronization.yml");
+            put(Language.FR, "La synchronisation de groupe nécessite des entrées group-role-synchronization.groups-and-roles-to-sync valides dans synchronization.yml");
+            put(Language.DE, "Für die Gruppensynchronisierung sind gültige group-role-synchronization.groups-and-roles-to-sync-Einträge in synchronization.yml erforderlich");
+            put(Language.JA, "グループの同期には、synchronization.ymlの有効なgroup-role-synchronization.groups-and-roles-to-syncエントリが必要です。");
+            put(Language.KO, "그룹 동기화에는 동기화에 유효한 group-role-synchronization.groups-and-roles-to-sync 항목이 synchronization.yml 합니다.");
+            put(Language.NL, "Groepsynchronisatie vereist geldige group-role-synchronization.groups-and-roles-to-sync-vermeldingen in synchronization.yml");
+            put(Language.ES, "La sincronización de grupo requiere entradas válidas de group-role-synchronization.groups-and-roles-to-sync en synchronization.yml");
+            put(Language.RU, "Синхронизация группы требует допустимых записей group-role-synchronization.groups-and-roles-to-sync в synchronization.yml");
+            put(Language.ET, "Grupi sünkroonimiseks on vaja kehtivaid group-role-synchronization.groups-and-roles-to-sync kirjeid failis synchronization.yml");
+            put(Language.ZH, "群組同步需要在synchronization.yml中有效的group-role-synchronization.groups-and-roles-to-sync條目");
+            put(Language.PL, "Synchronizacja grupowa wymaga ważnego group-role-synchronization.groups-and-roles-to-sync wpisu w synchronization.yml");
+            put(Language.DA, "Gruppe synkronisation kræver valid group-role-synchronization.groups-and-roles-to-sync entréer i synchronization.yml");
+            put(Language.UK, "Синхронізація групи вимагає дійсних записів group-role-synchronization.groups-and-roles-to-sync у synchronization.yml");
+            put(Language.NB, "Gruppesynkronisering krever gyldig group-role-synchronization.groups-and-roles-to-sync-oppføringer i synchronization.yml");
         }}), PLUGIN_RELOADED(new HashMap<Language, String>() {{
             put(Language.EN, "DiscordSRV has been reloaded. This is NOT supported, and issues WILL occur! Restart your server before asking for support!");
             put(Language.FR, "DiscordSRV a été rechargé. Ceci n'est PAS pris en charge et des problèmes surviendront! Redémarrez votre serveur avant de demander de l'aide!");
@@ -850,9 +836,8 @@ public class LangUtil {
 
         ACCOUNT_ALREADY_LINKED("MinecraftAccountAlreadyLinked", true),
         ALREADY_LINKED("DiscordAccountAlreadyLinked", false),
-        BAN_DISCORD_TO_MINECRAFT("BanSynchronizationDiscordToMinecraftReason", true),
+        BAN_DISCORD_TO_MINECRAFT("ban-synchronization.discord-to-minecraft-reason", true),
         CHAT_CHANNEL_COMMAND_ERROR("DiscordChatChannelConsoleCommandNotifyErrorsFormat", false),
-        CHAT_CHANNEL_MESSAGE("ChatChannelHookMessageFormat", true),
         CHAT_CHANNEL_TOPIC("ChannelTopicUpdaterChatChannelTopicFormat", false),
         CHAT_CHANNEL_TOPIC_AT_SERVER_SHUTDOWN("ChannelTopicUpdaterChatChannelTopicAtServerShutdownFormat", false),
         CHAT_TO_DISCORD("MinecraftChatToDiscordMessageFormat", false),
@@ -869,12 +854,10 @@ public class LangUtil {
         CONSOLE_CHANNEL_TOPIC("ChannelTopicUpdaterConsoleChannelTopicFormat", false),
         CONSOLE_CHANNEL_TOPIC_AT_SERVER_SHUTDOWN("ChannelTopicUpdaterConsoleChannelTopicAtServerShutdownFormat", false),
         DISCORD_ACCOUNT_LINKED("DiscordAccountLinked", false),
-        DISCORD_COMMAND("DiscordCommandFormat", true),
-        DYNMAP_CHAT_FORMAT("DynmapChatFormat", true),
-        DYNMAP_DISCORD_FORMAT("DynmapDiscordFormat", false),
-        DYNMAP_NAME_FORMAT("DynmapNameFormat", true),
         FAILED_TO_CHECK_LINKED_ACCOUNT("DiscordLinkedAccountCheckFailed", false),
         INVALID_CODE("InvalidCode", false),
+        LINK_CODE_CHANNEL_MESSAGE("LinkCodeChannelMessage", false),
+        LINK_COMMAND_WRONG_CHANNEL("LinkCommandWrongChannel", false),
         LINKED_SUCCESS("LinkedCommandSuccess", true),
         LINKED_ACCOUNT_REQUIRED("DiscordLinkedAccountRequired", false),
         LINKED_NOBODY_FOUND("MinecraftNobodyFound", true),
@@ -906,7 +889,18 @@ public class LangUtil {
         }
 
         public String toString(boolean translateColors) {
-            String message = DiscordSRV.config().getString(this.keyName);
+            Object value = DiscordSRV.config().getOptional(this.keyName).orElse(null);
+            String message;
+            if (value instanceof List) {
+                StringBuilder builder = new StringBuilder();
+                for (Object line : (List<?>) value) {
+                    if (builder.length() > 0) builder.append('\n');
+                    builder.append(line);
+                }
+                message = builder.toString();
+            } else {
+                message = DiscordSRV.config().getString(this.keyName);
+            }
             return translateColors ? MessageUtil.translateLegacy(message) : message;
         }
 

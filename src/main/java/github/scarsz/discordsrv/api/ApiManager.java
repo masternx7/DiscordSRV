@@ -81,7 +81,6 @@ public class ApiManager extends ListenerAdapter {
             GatewayIntent.GUILD_MEMBERS,
             GatewayIntent.GUILD_BANS,
             GatewayIntent.GUILD_EMOJIS,
-            GatewayIntent.GUILD_VOICE_STATES,
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.DIRECT_MESSAGES
     );
@@ -89,7 +88,6 @@ public class ApiManager extends ListenerAdapter {
     private final EnumSet<CacheFlag> cacheFlags = EnumSet.of(
             // required for DiscordSRV's use
             CacheFlag.MEMBER_OVERRIDES,
-            CacheFlag.VOICE_STATE,
             CacheFlag.EMOTE
     );
 

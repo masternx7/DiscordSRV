@@ -23,6 +23,7 @@ package github.scarsz.discordsrv.listeners;
 import github.scarsz.discordsrv.Debug;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.events.DiscordPrivateMessageReceivedEvent;
+import github.scarsz.discordsrv.objects.managers.link.LinkResult;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
@@ -52,10 +53,15 @@ public class DiscordAccountLinkListener extends ListenerAdapter {
         DiscordSRV.api.callEvent(new DiscordPrivateMessageReceivedEvent(event));
 
         // don't link accounts if config option is disabled
-        if (!DiscordSRV.config().getBoolean("MinecraftDiscordAccountLinkedUsePM")) return;
+        if (!DiscordSRV.config().getBoolean("account-linking.use-pm")) return;
 
-        String reply = DiscordSRV.getPlugin().getAccountLinkManager().process(event.getMessage().getContentRaw(), event.getAuthor().getId());
-        if (reply != null) event.getMessage().reply(reply).queue();
+        LinkResult result = DiscordSRV.getPlugin().getAccountLinkManager().processLink(event.getMessage().getContentRaw(), event.getAuthor().getId());
+        Message linkedMessage = result.isSuccess() ? DiscordSRV.getPlugin().getAccountLinkedMessage(result) : null;
+        if (linkedMessage != null) {
+            event.getMessage().reply(linkedMessage).queue();
+        } else if (result.getMessage() != null) {
+            event.getMessage().reply(result.getMessage()).queue();
+        }
     }
 
     private final ErrorHandler ignoreFailedToDeleteMessage = new ErrorHandler()
@@ -72,10 +78,13 @@ public class DiscordAccountLinkListener extends ListenerAdapter {
         if (!event.getChannel().equals(linkChannel)) return;
 
         Message receivedMessage = event.getMessage();
-        String reply = DiscordSRV.getPlugin().getAccountLinkManager().process(receivedMessage.getContentRaw(), event.getAuthor().getId());
-        if (reply != null) {
-            int deleteSeconds = DiscordSRV.config().getIntElse("MinecraftDiscordAccountLinkedMessageDeleteSeconds", 0);
-            RestAction<Message> repliedMessage = receivedMessage.reply(reply).delay(deleteSeconds, TimeUnit.SECONDS);
+        LinkResult result = DiscordSRV.getPlugin().getAccountLinkManager().processLink(receivedMessage.getContentRaw(), event.getAuthor().getId());
+        Message linkedMessage = result.isSuccess() ? DiscordSRV.getPlugin().getAccountLinkedMessage(result) : null;
+        if (result.getMessage() != null || linkedMessage != null) {
+            int deleteSeconds = DiscordSRV.config().getIntElse("account-linking.message-delete-seconds", 0);
+            RestAction<Message> repliedMessage = linkedMessage != null
+                    ? receivedMessage.reply(linkedMessage).delay(deleteSeconds, TimeUnit.SECONDS)
+                    : receivedMessage.reply(result.getMessage()).delay(deleteSeconds, TimeUnit.SECONDS);
 
             repliedMessage.queue(replyMessage -> {
                 // delete the message after a delay if the config option is set
@@ -101,7 +110,7 @@ public class DiscordAccountLinkListener extends ListenerAdapter {
         // add linked role and nickname back to people when they rejoin the server
         UUID uuid = DiscordSRV.getPlugin().getAccountLinkManager().getUuid(event.getUser().getId());
         if (uuid != null) {
-            Role roleToAdd = DiscordUtil.resolveRole(DiscordSRV.config().getString("MinecraftDiscordAccountLinkedRoleNameToAddUserTo"));
+            Role roleToAdd = DiscordUtil.resolveRole(DiscordSRV.config().getString("account-linking.role-name-to-add-user-to"));
             if (roleToAdd == null || roleToAdd.getGuild().equals(member.getGuild())) {
                 if (roleToAdd != null) DiscordUtil.addRoleToMember(member, roleToAdd);
                 else DiscordSRV.debug(Debug.GROUP_SYNC, "Couldn't add user to null role");
@@ -109,7 +118,7 @@ public class DiscordAccountLinkListener extends ListenerAdapter {
                 DiscordSRV.debug(Debug.GROUP_SYNC, "Not adding role to member upon guild join due to the guild being different! (" + roleToAdd.getGuild() + " / " + member.getGuild() + ")");
             }
 
-            if (DiscordSRV.config().getBoolean("NicknameSynchronizationEnabled")) {
+            if (DiscordSRV.config().getBoolean("nickname-synchronization.enabled")) {
                 OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
                 DiscordSRV.getPlugin().getNicknameUpdater().setNickname(member, player);
             }

@@ -124,10 +124,10 @@ public class WebhookUtil {
                 avatarUrl = DiscordSRV.getAvatarUrl(player.getName(), player.getUniqueId());
             }
 
-            String username = DiscordSRV.config().getString("Experiment_WebhookChatMessageUsernameFormat")
+            String username = DiscordSRV.config().getString("experiments.webhook.chat-message-username-format")
                     .replace("%displayname%", displayName)
                     .replace("%username%", String.valueOf(player.getName()));
-            String chatMessage = DiscordSRV.config().getString("Experiment_WebhookChatMessageFormat")
+            String chatMessage = DiscordSRV.config().getString("experiments.webhook.chat-message-format")
                     .replace("%displayname%", displayName)
                     .replace("%username%", player.getName())
                     .replace("%message%", message.replace("[", "\\["));
@@ -158,9 +158,9 @@ public class WebhookUtil {
                         .replace("%discordname%", member != null ? member.getEffectiveName() : "")
                         .replace("%discordusername%", member != null ? member.getUser().getName() : "");
                 if (member != null) {
-                    if (DiscordSRV.config().getBoolean("Experiment_WebhookChatMessageAvatarFromDiscord"))
+                    if (DiscordSRV.config().getBoolean("experiments.webhook.chat-message-avatar-from-discord"))
                         avatarUrl = member.getUser().getEffectiveAvatarUrl();
-                    if (DiscordSRV.config().getBoolean("Experiment_WebhookChatMessageUsernameFromDiscord"))
+                    if (DiscordSRV.config().getBoolean("experiments.webhook.chat-message-username-from-discord"))
                         username = member.getEffectiveName();
                 }
             } else {

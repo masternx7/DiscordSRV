@@ -266,21 +266,6 @@ dependencies {
     /// Plugin Hooks
     ///
 
-    // chat hooks
-    compileOnly("ru.mrbrikster:chatty-api:2.18.2")
-    compileOnly("ru.brikster:chatty-api:3.0.0-20240908.194144-1") // most recent commit: ff0144c5fd9a692e3238dd8d03028023b94737b3
-    compileOnly("br.com.finalcraft:fancychat:1.0.2")
-    compileOnly("com.dthielke.herochat:Herochat:5.6.5")
-    compileOnly("br.com.devpaulo:legendchat:1.1.5")
-    compileOnly("com.github.ucchyocean.lc:LunaChat:3.0.16")
-    compileOnly("com.nickuc.chat:nchat-api:5.6")
-    compileOnly("com.palmergames.bukkit:TownyChat:0.45")
-    compileOnly("mineverse.aust1n46:venturechat:2.20.1")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.5.0")
-
-    // vanish hooks
-    compileOnly("de.myzelyam:SuperVanish:6.2.0")
-
     // permissions hooks
     compileOnly("net.luckperms:api:5.4")
 
@@ -289,8 +274,6 @@ dependencies {
     compileOnly("org.mvplugins.multiverse.core:multiverse-core:5.0.0-SNAPSHOT")
 
     // misc hooks
-    compileOnly("org.dynmap:dynmap-api:2.0")
-    compileOnly("com.gmail.nossr50:mcmmo:1.5.07")
     compileOnly("net.milkbowl.vault:VaultAPI:1.7")
     compileOnly("me.clip:placeholderapi:2.10.9")
 

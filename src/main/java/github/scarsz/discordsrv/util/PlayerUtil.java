@@ -22,8 +22,6 @@ package github.scarsz.discordsrv.util;
 
 import github.scarsz.discordsrv.Debug;
 import github.scarsz.discordsrv.DiscordSRV;
-import github.scarsz.discordsrv.hooks.PluginHook;
-import github.scarsz.discordsrv.hooks.vanish.VanishHook;
 import net.dv8tion.jda.api.entities.User;
 import org.apache.commons.lang3.StringUtils;
 import org.bukkit.Bukkit;
@@ -32,6 +30,7 @@ import org.bukkit.Sound;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.metadata.MetadataValue;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -117,7 +116,7 @@ public class PlayerUtil {
         if (predicate == null) predicate = Objects::nonNull; // if null predicate given, that means everyone on the server would've gotten the message
                                                              // thus, default to a (hopefully) always true predicate
 
-        if (!DiscordSRV.config().getBoolean("MinecraftMentionSound")) return;
+        if (!DiscordSRV.config().getBoolean("general.minecraft-mention-sound")) return;
 
         if (StringUtils.isBlank(message)) {
             DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "Tried notifying players with null or blank message");
@@ -149,17 +148,15 @@ public class PlayerUtil {
     }
 
     /**
-     * Check if the given Player is vanished by a supported and hooked vanish plugin
+     * Check if the given Player is vanished using the "vanished" metadata key
      * @param player Player to check
      * @return whether the player is vanished
      */
     @SuppressWarnings("deprecation")
     public static boolean isVanished(Player player) {
-        for (PluginHook pluginHook : DiscordSRV.getPlugin().getPluginHooks()) {
-            if (pluginHook instanceof VanishHook) {
-                if (((VanishHook) pluginHook).isVanished(player)) {
-                    return true;
-                }
+        for (MetadataValue metadataValue : player.getMetadata("vanished")) {
+            if (metadataValue.asBoolean()) {
+                return true;
             }
         }
 

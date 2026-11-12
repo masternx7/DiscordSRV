@@ -24,7 +24,6 @@ import com.vdurmont.emoji.EmojiParser;
 import github.scarsz.discordsrv.Debug;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.api.events.*;
-import github.scarsz.discordsrv.hooks.DynmapHook;
 import github.scarsz.discordsrv.hooks.VaultHook;
 import github.scarsz.discordsrv.objects.proxy.CommandSenderDynamicProxy;
 import github.scarsz.discordsrv.util.*;
@@ -70,7 +69,7 @@ public class DiscordChatListener extends ListenerAdapter {
             String webhook = WebhookUtil.getWebhookUrlFromCache(event.getChannel());
             if (webhook != null && webhook.split("/")[6].equals(event.getAuthor().getId())) return;
 
-            if (DiscordSRV.config().getBoolean("DiscordChatChannelBlockWebhooks")) {
+            if (DiscordSRV.config().getBoolean("chat-channel.block-webhooks")) {
                 DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "Received Discord message from webhook " + event.getAuthor() + " but DiscordChatChannelBlockWebhooks is on");
                 return;
             }
@@ -103,10 +102,10 @@ public class DiscordChatListener extends ListenerAdapter {
         message = message.replace("\u001B", "");
 
         // return if should not send discord chat
-        if (!DiscordSRV.config().getBoolean("DiscordChatChannelDiscordToMinecraft")) return;
+        if (!DiscordSRV.config().getBoolean("chat-channel.discord-to-minecraft")) return;
 
         // enforce required account linking
-        if (DiscordSRV.config().getBoolean("DiscordChatChannelRequireLinkedAccount") && !event.getAuthor().isBot()) {
+        if (DiscordSRV.config().getBoolean("chat-channel.require-linked-account") && !event.getAuthor().isBot()) {
             if (DiscordSRV.getPlugin().getAccountLinkManager() == null) {
                 event.getAuthor().openPrivateChannel().queue(privateChannel -> privateChannel.sendMessage(LangUtil.Message.FAILED_TO_CHECK_LINKED_ACCOUNT.toString()).queue());
                 DiscordUtil.deleteMessage(event.getMessage());
@@ -152,21 +151,21 @@ public class DiscordChatListener extends ListenerAdapter {
         }
 
         // block bots
-        if (DiscordSRV.config().getBoolean("DiscordChatChannelBlockBots") && event.getAuthor().isBot() && !event.isWebhookMessage()) {
+        if (DiscordSRV.config().getBoolean("chat-channel.block-bots") && event.getAuthor().isBot() && !event.isWebhookMessage()) {
             DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "Received Discord message from bot " + event.getAuthor() + " but DiscordChatChannelBlockBots is on");
             return;
         }
 
         // blocked ids
-        if (DiscordSRV.config().getStringList("DiscordChatChannelBlockedIds").contains(event.getAuthor().getId())) {
+        if (DiscordSRV.config().getStringList("chat-channel.blocked-ids").contains(event.getAuthor().getId())) {
             DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "Received Discord message from user " + event.getAuthor() + " but they are on the DiscordChatChannelBlockedIds list");
             return;
         }
 
         // blocked roles
         if (!event.isWebhookMessage()) {
-            boolean hasRole = DiscordSRV.config().getStringList("DiscordChatChannelBlockedRolesIds").stream().anyMatch(id -> event.getMember().getRoles().stream().anyMatch(r -> r.getId().equals(id)));
-            boolean whitelist = DiscordSRV.config().getBoolean("DiscordChatChannelBlockedRolesAsWhitelist");
+            boolean hasRole = DiscordSRV.config().getStringList("chat-channel.blocked-role-ids").stream().anyMatch(id -> event.getMember().getRoles().stream().anyMatch(r -> r.getId().equals(id)));
+            boolean whitelist = DiscordSRV.config().getBoolean("chat-channel.blocked-roles-as-whitelist");
             if (whitelist != hasRole) {
                 DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "Received Discord message from user " + event.getAuthor() + " but they " + (whitelist ? "don't " : "") + "have a role from the DiscordChatChannelBlockedRolesIds list");
                 event.getMessage().addReaction("❌").queue();
@@ -208,13 +207,13 @@ public class DiscordChatListener extends ListenerAdapter {
             }
         }
 
-        if (message.length() > DiscordSRV.config().getInt("DiscordChatChannelTruncateLength")) {
+        if (message.length() > DiscordSRV.config().getInt("chat-channel.truncate-length")) {
             event.getMessage().addReaction("\uD83D\uDCAC").queue(v -> event.getMessage().addReaction("❗").queue());
-            message = message.substring(0, DiscordSRV.config().getInt("DiscordChatChannelTruncateLength"));
+            message = message.substring(0, DiscordSRV.config().getInt("chat-channel.truncate-length"));
         }
 
         // strip colors if role doesn't have permission
-        List<String> rolesAllowedToColor = DiscordSRV.config().getStringList("DiscordChatChannelRolesAllowedToUseColorCodesInChat");
+        List<String> rolesAllowedToColor = DiscordSRV.config().getStringList("chat-channel.roles-allowed-to-use-color-codes-in-chat");
         boolean shouldStripColors = !rolesAllowedToColor.contains("@everyone");
         if (!event.isWebhookMessage()) {
             for (Role role : event.getMember().getRoles())
@@ -241,7 +240,7 @@ public class DiscordChatListener extends ListenerAdapter {
             return;
         }
 
-        String emojiBehavior = DiscordSRV.config().getString("DiscordChatChannelEmojiBehavior");
+        String emojiBehavior = DiscordSRV.config().getString("chat-channel.emoji-behavior");
         boolean hideEmoji = emojiBehavior.equalsIgnoreCase("hide");
         if (hideEmoji && StringUtils.isBlank(EmojiParser.removeAllEmojis(message))) {
             DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "Ignoring message from " + event.getAuthor() + " because it became completely blank after removing unicode emojis");
@@ -265,17 +264,6 @@ public class DiscordChatListener extends ListenerAdapter {
             DiscordSRV.debug(Debug.DISCORD_TO_MINECRAFT, "DiscordGuildMessagePostProcessEvent was cancelled, message send aborted");
             return;
         }
-
-        DiscordSRV.getPlugin().getPluginHooks().stream()
-                .filter(pluginHook -> pluginHook instanceof DynmapHook)
-                .map(pluginHook -> (DynmapHook) pluginHook)
-                .findAny().ifPresent(dynmapHook -> {
-                    String chatFormat = applyFormattingAndKeepLegacy(LangUtil.Message.DYNMAP_CHAT_FORMAT.toString(), finalMessage, event, selectedRoles, emojiBehavior, hideEmoji);
-                    String nameFormat = applyFormattingAndKeepLegacy(LangUtil.Message.DYNMAP_NAME_FORMAT.toString(), finalMessage, event, selectedRoles, emojiBehavior, hideEmoji);
-
-                    nameFormat = MessageUtil.strip(nameFormat);
-                    dynmapHook.broadcastMessageToDynmap(nameFormat, chatFormat);
-        });
 
         DiscordSRV.getPlugin().broadcastMessageToMinecraftServer(
                 DiscordSRV.getPlugin().getDestinationGameChannelNameForTextChannel(event.getChannel()),
@@ -315,18 +303,6 @@ public class DiscordChatListener extends ListenerAdapter {
         return DiscordSRV.getPlugin().getRoleAliases().getOrDefault(role.getId(),
                 DiscordSRV.getPlugin().getRoleAliases().getOrDefault(name.toLowerCase(), name)
         );
-    }
-
-    private String applyFormattingAndKeepLegacy(
-            String format,
-            String message,
-            GuildMessageReceivedEvent event,
-            List<Role> selectedRoles,
-            String emojiBehavior,
-            boolean hideEmoji
-    ) {
-        format = applyFormatting(format, event, selectedRoles, emojiBehavior, hideEmoji);
-        return format.replace("%message%", message);
     }
 
     private static final Pattern MESSAGE_MATTER = Pattern.compile("%message%");
@@ -444,10 +420,10 @@ public class DiscordChatListener extends ListenerAdapter {
     }
 
     private boolean processPlayerListCommand(GuildMessageReceivedEvent event, String message) {
-        if (!DiscordSRV.config().getBoolean("DiscordChatChannelListCommandEnabled")) return false;
-        if (!StringUtils.trimToEmpty(message).equalsIgnoreCase(DiscordSRV.config().getString("DiscordChatChannelListCommandMessage"))) return false;
+        if (!DiscordSRV.config().getBoolean("chat-channel.list-command.enabled")) return false;
+        if (!StringUtils.trimToEmpty(message).equalsIgnoreCase(DiscordSRV.config().getString("chat-channel.list-command.message"))) return false;
 
-        int expiration = DiscordSRV.config().getInt("DiscordChatChannelListCommandExpiration") * 1000;
+        int expiration = DiscordSRV.config().getInt("chat-channel.list-command.expiration") * 1000;
         String playerListMessage;
         if (PlayerUtil.getOnlinePlayers(true).isEmpty()) {
             playerListMessage = PlaceholderUtil.replacePlaceholdersToDiscord(LangUtil.Message.PLAYER_LIST_COMMAND_NO_PLAYERS.toString());
@@ -494,7 +470,7 @@ public class DiscordChatListener extends ListenerAdapter {
                 DiscordUtil.sendMessage(event.getChannel(), listCommandMessageEvent.getPlayerListMessage(), listCommandMessageEvent.getExpiration());
 
                 // expire message after specified time
-                if (listCommandMessageEvent.getExpiration() > 0 && DiscordSRV.config().getBoolean("DiscordChatChannelListCommandExpirationDeleteRequest")) {
+                if (listCommandMessageEvent.getExpiration() > 0 && DiscordSRV.config().getBoolean("chat-channel.list-command.expiration-delete-request")) {
                     event.getMessage().delete().queueAfter(listCommandMessageEvent.getExpiration(), TimeUnit.MILLISECONDS);
                 }
                 return true;
@@ -509,21 +485,21 @@ public class DiscordChatListener extends ListenerAdapter {
     private final boolean useFeedbackForwardingSender = PaperForwardingCommandSender.isSenderExists();
 
     private boolean processConsoleCommand(GuildMessageReceivedEvent event, String message) {
-        if (!DiscordSRV.config().getBoolean("DiscordChatChannelConsoleCommandEnabled")) return false;
+        if (!DiscordSRV.config().getBoolean("chat-channel.console-command.enabled")) return false;
 
-        String prefix = DiscordSRV.config().getString("DiscordChatChannelConsoleCommandPrefix");
+        String prefix = DiscordSRV.config().getString("chat-channel.console-command.prefix");
         if (prefix.isEmpty()) return false;
         if (!StringUtils.startsWithIgnoreCase(message, prefix)) return false;
         String command = message.substring(prefix.length()).trim();
 
         // check if user has a role able to use this
         Set<String> rolesAllowedToConsole = new HashSet<>();
-        rolesAllowedToConsole.addAll(DiscordSRV.config().getStringList("DiscordChatChannelConsoleCommandRolesAllowed"));
-        rolesAllowedToConsole.addAll(DiscordSRV.config().getStringList("DiscordChatChannelConsoleCommandWhitelistBypassRoles"));
+        rolesAllowedToConsole.addAll(DiscordSRV.config().getStringList("chat-channel.console-command.roles-allowed"));
+        rolesAllowedToConsole.addAll(DiscordSRV.config().getStringList("chat-channel.console-command.whitelist-bypass-roles"));
         boolean allowed = event.isWebhookMessage() || DiscordUtil.memberHasRole(event.getMember(), rolesAllowedToConsole);
         if (!allowed) {
             // tell user that they have no permission
-            if (DiscordSRV.config().getBoolean("DiscordChatChannelConsoleCommandNotifyErrors")) {
+            if (DiscordSRV.config().getBoolean("chat-channel.console-command.notify-errors")) {
                 String e = LangUtil.Message.CHAT_CHANNEL_COMMAND_ERROR.toString()
                         .replace("%user%", event.getAuthor().getName())
                         .replace("%error%", "no permission");
@@ -542,7 +518,7 @@ public class DiscordChatListener extends ListenerAdapter {
 
         // check if user has a role that can bypass the white/blacklist
         boolean canBypass = false;
-        for (String roleName : DiscordSRV.config().getStringList("DiscordChatChannelConsoleCommandWhitelistBypassRoles")) {
+        for (String roleName : DiscordSRV.config().getStringList("chat-channel.console-command.whitelist-bypass-roles")) {
             boolean isAble = DiscordUtil.memberHasRole(event.getMember(), Collections.singleton(roleName));
             canBypass = isAble || canBypass;
         }
@@ -555,9 +531,9 @@ public class DiscordChatListener extends ListenerAdapter {
         } else {
             // Check the white/black list
             String requestedCommand = command.split(" ")[0];
-            boolean whitelistActsAsBlacklist = DiscordSRV.config().getBoolean("DiscordChatChannelConsoleCommandWhitelistActsAsBlacklist");
+            boolean whitelistActsAsBlacklist = DiscordSRV.config().getBoolean("chat-channel.console-command.whitelist-acts-as-blacklist");
 
-            List<String> commandsToCheck = DiscordSRV.config().getStringList("DiscordChatChannelConsoleCommandWhitelist");
+            List<String> commandsToCheck = DiscordSRV.config().getStringList("chat-channel.console-command.whitelist");
             boolean isListed = commandsToCheck.contains(requestedCommand);
 
             commandIsAbleToBeUsed = isListed ^ whitelistActsAsBlacklist;
@@ -565,7 +541,7 @@ public class DiscordChatListener extends ListenerAdapter {
 
         if (!commandIsAbleToBeUsed) {
             // tell user that the command is not able to be used
-            if (DiscordSRV.config().getBoolean("DiscordChatChannelConsoleCommandNotifyErrors")) {
+            if (DiscordSRV.config().getBoolean("chat-channel.console-command.notify-errors")) {
                 String e = LangUtil.Message.CHAT_CHANNEL_COMMAND_ERROR.toString()
                         .replace("%user%", event.getAuthor().getName())
                         .replace("%error%", "command is not able to be used");
@@ -594,7 +570,7 @@ public class DiscordChatListener extends ListenerAdapter {
                 );
             } catch (IOException e) {
                 DiscordSRV.error(LangUtil.InternalMessage.ERROR_LOGGING_CONSOLE_ACTION + " " + logFile.getAbsolutePath() + ": " + e.getMessage());
-                if (DiscordSRV.config().getBoolean("CancelConsoleCommandIfLoggingFailed")) return true;
+                if (DiscordSRV.config().getBoolean("general.cancel-console-command-if-logging-failed")) return true;
             }
         }
 

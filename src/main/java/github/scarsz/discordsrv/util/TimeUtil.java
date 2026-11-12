@@ -35,11 +35,11 @@ public class TimeUtil {
     private static final TimeZone zone;
 
     static {
-        timestampFormat = new SimpleDateFormat(DiscordSRV.config().getOptionalString("TimestampFormat").orElse("EEE, d. MMM yyyy HH:mm:ss z"));
-        dateFormat = new SimpleDateFormat(DiscordSRV.config().getOptionalString("DateFormat").orElse("yyyy-MM-dd"));
+        timestampFormat = new SimpleDateFormat(DiscordSRV.config().getOptionalString("general.timestamp-format").orElse("EEE, d. MMM yyyy HH:mm:ss z"));
+        dateFormat = new SimpleDateFormat(DiscordSRV.config().getOptionalString("general.date-format").orElse("yyyy-MM-dd"));
         consoleTimeFormat = new SimpleDateFormat(DiscordSRV.config().getOptionalString("DiscordConsoleChannelTimestampFormat").orElse("EEE HH:mm:ss"));
 
-        String timezone = DiscordSRV.config().getOptionalString("Timezone").orElse("default");
+        String timezone = DiscordSRV.config().getOptionalString("general.timezone").orElse("default");
         zone = timezone.equalsIgnoreCase("default") ? TimeZone.getDefault() : TimeZone.getTimeZone(timezone);
         timestampFormat.setTimeZone(zone);
         dateFormat.setTimeZone(zone);

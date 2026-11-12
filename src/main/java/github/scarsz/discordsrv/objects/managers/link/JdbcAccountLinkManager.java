@@ -69,7 +69,7 @@ public class JdbcAccountLinkManager extends AbstractAccountLinkManager {
     }
 
     public static boolean shouldUseJdbc(boolean quiet) {
-        String jdbc = DiscordSRV.config().getString("Experiment_JdbcAccountLinkBackend");
+        String jdbc = DiscordSRV.config().getString("experiments.jdbc.account-link-backend");
         if (StringUtils.isBlank(jdbc)) return false;
 
         try {
@@ -110,11 +110,11 @@ public class JdbcAccountLinkManager extends AbstractAccountLinkManager {
     }
 
     public JdbcAccountLinkManager() throws SQLException {
-        String jdbc = DiscordSRV.config().getString("Experiment_JdbcAccountLinkBackend");
+        String jdbc = DiscordSRV.config().getString("experiments.jdbc.account-link-backend");
         if (!shouldUseJdbc(true) || StringUtils.isBlank(jdbc)) throw new RuntimeException("JDBC is not wanted");
 
-        String jdbcUsername = DiscordSRV.config().getString("Experiment_JdbcUsername");
-        String jdbcPassword = DiscordSRV.config().getString("Experiment_JdbcPassword");
+        String jdbcUsername = DiscordSRV.config().getString("experiments.jdbc.username");
+        String jdbcPassword = DiscordSRV.config().getString("experiments.jdbc.password");
 
         Properties properties = new Properties();
         if (StringUtils.isNotBlank(jdbcUsername)) properties.put("user", jdbcUsername);
@@ -141,7 +141,7 @@ public class JdbcAccountLinkManager extends AbstractAccountLinkManager {
         this.connection = conn;
 
         database = connection.getCatalog();
-        String tablePrefix = DiscordSRV.config().getString("Experiment_JdbcTablePrefix");
+        String tablePrefix = DiscordSRV.config().getString("experiments.jdbc.table-prefix");
         if (StringUtils.isBlank(tablePrefix)) tablePrefix = ""; else tablePrefix += "_";
         accountsTable = tablePrefix + "accounts";
         codesTable = tablePrefix + "codes";
@@ -346,6 +346,11 @@ public class JdbcAccountLinkManager extends AbstractAccountLinkManager {
 
     @Override
     public String process(String code, String discordId) {
+        return processLink(code, discordId).getMessage();
+    }
+
+    @Override
+    public LinkResult processLink(String code, String discordId) {
         ensureOffThread(false);
 
         String mention = DiscordUtil.getUserById(discordId).getAsMention();
@@ -353,14 +358,14 @@ public class JdbcAccountLinkManager extends AbstractAccountLinkManager {
         UUID existingUuid = getUuid(discordId);
         boolean alreadyLinked = existingUuid != null;
         if (alreadyLinked) {
-            if (DiscordSRV.config().getBoolean("MinecraftDiscordAccountLinkedAllowRelinkBySendingANewCode")) {
+            if (DiscordSRV.config().getBoolean("account-linking.allow-relink-by-sending-a-new-code")) {
                 unlink(discordId);
             } else {
                 OfflinePlayer offlinePlayer = DiscordSRV.getPlugin().getServer().getOfflinePlayer(existingUuid);
-                return LangUtil.Message.ALREADY_LINKED.toString()
+                return new LinkResult(LangUtil.Message.ALREADY_LINKED.toString()
                         .replace("%username%", String.valueOf(offlinePlayer.getName()))
                         .replace("%uuid%", offlinePlayer.getUniqueId().toString())
-                        .replace("%mention%", mention);
+                        .replace("%mention%", mention), false, existingUuid, discordId);
             }
         }
 
@@ -386,19 +391,19 @@ public class JdbcAccountLinkManager extends AbstractAccountLinkManager {
                 );
             }
 
-            return LangUtil.Message.DISCORD_ACCOUNT_LINKED.toString()
+            return new LinkResult(LangUtil.Message.DISCORD_ACCOUNT_LINKED.toString()
                     .replace("%name%", PrettyUtil.beautifyUsername(player, "<Unknown>", false))
                     .replace("%displayname%", PrettyUtil.beautifyNickname(player, "<Unknown>", false))
                     .replace("%uuid%", uuid.toString())
-                    .replace("%mention%", mention);
+                    .replace("%mention%", mention), true, uuid, discordId);
         }
 
         String reply = code.length() == 4
                 ? LangUtil.Message.UNKNOWN_CODE.toString()
                 : LangUtil.Message.INVALID_CODE.toString();
-        return reply
+        return new LinkResult(reply
                 .replace("%code%", code)
-                .replace("%mention%", mention);
+                .replace("%mention%", mention), false, null, discordId);
     }
 
     @Override

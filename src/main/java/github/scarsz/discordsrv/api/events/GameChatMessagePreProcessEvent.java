@@ -32,8 +32,6 @@ import org.bukkit.event.Event;
  * <p>At the time this event is called, {@link #getMessage()} would return what the person <i>said</i>, not
  * the final message. You could change what they said using the {@link #setMessage(String)} method or use
  * {@link #setCancelled(boolean)} to cancel it from being processed altogether</p>
- *
- * <p>If a messages is coming from VentureChat over Bungee then {@link VentureChatMessagePreProcessEvent} would be called instead, due to the lack of the Player object</p>
  */
 @SuppressWarnings({"LombokGetterMayBeUsed", "LombokSetterMayBeUsed"})
 public class GameChatMessagePreProcessEvent extends GameEvent<Event> implements Cancellable {

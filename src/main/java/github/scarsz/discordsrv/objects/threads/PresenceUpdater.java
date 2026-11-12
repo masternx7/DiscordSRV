@@ -50,11 +50,11 @@ public class PresenceUpdater extends Thread {
     @Override
     public void run() {
         while (true) {
-            int rate = DiscordSRV.config().getInt("StatusUpdateRateInMinutes");
+            int rate = DiscordSRV.config().getInt("game-status.update-rate-in-minutes");
             if (rate < 1) rate = 1;
 
             if (DiscordUtil.getJda() != null) {
-                Dynamic dynamic = DiscordSRV.config().dget("DiscordGameStatus");
+                Dynamic dynamic = DiscordSRV.config().dget("game-status.status");
                 List<String> statuses = new LinkedList<>();
                 if (dynamic.isList()) {
                     statuses.addAll(dynamic.asList());
@@ -79,7 +79,7 @@ public class PresenceUpdater extends Thread {
                     status = MessageUtil.strip(status); // remove color codes
                 }
 
-                String onlineStatusString = DiscordSRV.config().getString("DiscordOnlineStatus").toUpperCase(Locale.ROOT).trim();
+                String onlineStatusString = DiscordSRV.config().getString("game-status.online-status").toUpperCase(Locale.ROOT).trim();
 
                 OnlineStatus onlineStatus = OnlineStatus.fromKey(onlineStatusString);
                 if (onlineStatus == OnlineStatus.UNKNOWN) onlineStatus = OnlineStatus.ONLINE;

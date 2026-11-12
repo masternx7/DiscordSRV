@@ -45,7 +45,7 @@ public class PlayerBanListener implements Listener {
         SchedulerUtil.runTaskLater(DiscordSRV.getPlugin(), () -> {
             if (Bukkit.getBannedPlayers().contains(Bukkit.getOfflinePlayer(event.getPlayer().getUniqueId()))) {
                 if (event.getPlayer() instanceof OfflinePlayer) {
-                    if (!DiscordSRV.config().getBoolean("BanSynchronizationMinecraftToDiscord")) {
+                    if (!DiscordSRV.config().getBoolean("ban-synchronization.minecraft-to-discord")) {
                         DiscordSRV.debug(Debug.MINECRAFT_TO_DISCORD, "Not handling ban for player " + event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") because doing so is disabled in the config");
                         return;
                     }
@@ -59,7 +59,7 @@ public class PlayerBanListener implements Listener {
 
     @EventHandler(ignoreCancelled = true, priority = EventPriority.MONITOR)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (!DiscordSRV.config().getBoolean("BanSynchronizationMinecraftToDiscord")) {
+        if (!DiscordSRV.config().getBoolean("ban-synchronization.minecraft-to-discord")) {
             DiscordSRV.debug(Debug.MINECRAFT_TO_DISCORD, "Not handling possible unban for player " + event.getPlayer().getName() + " (" + event.getPlayer().getUniqueId() + ") because doing so is disabled in the config");
             return;
         }

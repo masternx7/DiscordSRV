@@ -23,6 +23,7 @@ package github.scarsz.discordsrv.objects.managers.link.file;
 import github.scarsz.discordsrv.Debug;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.objects.managers.link.AbstractAccountLinkManager;
+import github.scarsz.discordsrv.objects.managers.link.LinkResult;
 import github.scarsz.discordsrv.util.DiscordUtil;
 import github.scarsz.discordsrv.util.LangUtil;
 import github.scarsz.discordsrv.util.MessageUtil;
@@ -86,6 +87,11 @@ public abstract class AbstractFileAccountLinkManager extends AbstractAccountLink
 
     @Override
     public String process(String linkCode, String discordId) {
+        return processLink(linkCode, discordId).getMessage();
+    }
+
+    @Override
+    public LinkResult processLink(String linkCode, String discordId) {
         boolean contains;
         synchronized (linkedAccounts) {
             contains = linkedAccounts.containsKey(discordId);
@@ -95,7 +101,7 @@ public abstract class AbstractFileAccountLinkManager extends AbstractAccountLink
         String mention = user == null ? "" : user.getAsMention();
 
         if (contains) {
-            if (DiscordSRV.config().getBoolean("MinecraftDiscordAccountLinkedAllowRelinkBySendingANewCode")) {
+            if (DiscordSRV.config().getBoolean("account-linking.allow-relink-by-sending-a-new-code")) {
                 unlink(discordId);
             } else {
                 UUID uuid;
@@ -103,10 +109,10 @@ public abstract class AbstractFileAccountLinkManager extends AbstractAccountLink
                     uuid = linkedAccounts.get(discordId);
                 }
                 OfflinePlayer offlinePlayer = DiscordSRV.getPlugin().getServer().getOfflinePlayer(uuid);
-                return LangUtil.Message.ALREADY_LINKED.toString()
+                return new LinkResult(LangUtil.Message.ALREADY_LINKED.toString()
                         .replace("%username%", PrettyUtil.beautifyUsername(offlinePlayer, "<Unknown>", false))
                         .replace("%uuid%", uuid.toString())
-                        .replace("%mention%", mention);
+                        .replace("%mention%", mention), false, uuid, discordId);
             }
         }
 
@@ -114,30 +120,31 @@ public abstract class AbstractFileAccountLinkManager extends AbstractAccountLink
         linkCode = linkCode.replaceAll("[^0-9]", "");
 
         if (linkingCodes.containsKey(linkCode)) {
-            link(discordId, linkingCodes.get(linkCode));
+            UUID uuid = linkingCodes.get(linkCode);
+            link(discordId, uuid);
             linkingCodes.remove(linkCode);
 
-            OfflinePlayer player = Bukkit.getOfflinePlayer(getUuid(discordId));
+            OfflinePlayer player = Bukkit.getOfflinePlayer(uuid);
             if (player.isOnline()) {
-                MessageUtil.sendMessage(Bukkit.getPlayer(getUuid(discordId)), LangUtil.Message.MINECRAFT_ACCOUNT_LINKED.toString()
+                MessageUtil.sendMessage(Bukkit.getPlayer(uuid), LangUtil.Message.MINECRAFT_ACCOUNT_LINKED.toString()
                         .replace("%username%", user == null ? "" : user.getName())
                         .replace("%id%", user == null ? "" : user.getId())
                 );
             }
 
-            return LangUtil.Message.DISCORD_ACCOUNT_LINKED.toString()
+            return new LinkResult(LangUtil.Message.DISCORD_ACCOUNT_LINKED.toString()
                     .replace("%name%", PrettyUtil.beautifyUsername(player, "<Unknown>", false))
                     .replace("%displayname%", PrettyUtil.beautifyNickname(player, "<Unknown>", false))
-                    .replace("%uuid%", getUuid(discordId).toString())
-                    .replace("%mention%", mention);
+                    .replace("%uuid%", uuid.toString())
+                    .replace("%mention%", mention), true, uuid, discordId);
         }
 
         String reply = linkCode.length() == 4
                 ? LangUtil.Message.UNKNOWN_CODE.toString()
                 : LangUtil.Message.INVALID_CODE.toString();
-        return reply
+        return new LinkResult(reply
                 .replace("%code%", linkCode)
-                .replace("%mention%", mention);
+                .replace("%mention%", mention), false, null, discordId);
     }
 
     @Override

@@ -32,7 +32,7 @@ public class PlayerChatListener implements Listener {
     @SuppressWarnings("deprecation") // legacy
     @EventHandler(priority = EventPriority.MONITOR)
     public void onAsyncPlayerChat(AsyncPlayerChatEvent event) {
-        if (DiscordSRV.config().getBooleanElse("UseModernPaperChatEvent", false)
+        if (DiscordSRV.config().getBooleanElse("plugin-hooks.use-modern-paper-chat-event", false)
                 && DiscordSRV.getPlugin().isModernChatEventAvailable()) {
             return;
         }

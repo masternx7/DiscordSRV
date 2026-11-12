@@ -147,7 +147,7 @@ public class PluginUtil {
 
     public static boolean pluginHookIsEnabled(String pluginName) {
         boolean enabled = checkIfPluginEnabled(pluginName);
-        for (String pluginHookName : DiscordSRV.config().getStringList("DisabledPluginHooks")) {
+        for (String pluginHookName : DiscordSRV.config().getStringList("plugin-hooks.disabled")) {
             if (pluginName.toLowerCase().startsWith(pluginHookName.toLowerCase())) {
                 enabled = false;
                 break;

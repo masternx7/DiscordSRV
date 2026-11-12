@@ -94,7 +94,7 @@ public class PlayerJoinLeaveListener implements Listener {
                 DiscordSRV.getPlugin().sendJoinMessage(event.getPlayer(), message), 20);
 
         // if enabled, set the player's discord nickname as their ign
-        if (DiscordSRV.config().getBoolean("NicknameSynchronizationEnabled")) {
+        if (DiscordSRV.config().getBoolean("nickname-synchronization.enabled")) {
             SchedulerUtil.runTaskAsynchronously(DiscordSRV.getPlugin(), () -> {
                 final String discordId = DiscordSRV.getPlugin().getAccountLinkManager().getDiscordId(player.getUniqueId());
                 DiscordSRV.getPlugin().getNicknameUpdater().setNickname(DiscordUtil.getMemberById(discordId), player);

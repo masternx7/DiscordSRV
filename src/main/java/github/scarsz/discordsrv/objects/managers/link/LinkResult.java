@@ -18,20 +18,25 @@
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  */
 
-package github.scarsz.discordsrv.api.events;
+package github.scarsz.discordsrv.objects.managers.link;
 
-import mineverse.Aust1n46.chat.api.events.VentureChatEvent;
+import lombok.Getter;
 
-@SuppressWarnings("LombokGetterMayBeUsed")
-abstract class VentureChatMessageEvent extends Event {
+import java.util.UUID;
 
-    final private VentureChatEvent ventureChatEvent;
+@Getter
+public class LinkResult {
 
-    VentureChatMessageEvent(VentureChatEvent ventureChatEvent) {
-        this.ventureChatEvent = ventureChatEvent;
+    private final String message;
+    private final boolean success;
+    private final UUID minecraftUuid;
+    private final String discordId;
+
+    public LinkResult(String message, boolean success, UUID minecraftUuid, String discordId) {
+        this.message = message;
+        this.success = success;
+        this.minecraftUuid = minecraftUuid;
+        this.discordId = discordId;
     }
 
-    public VentureChatEvent getVentureChatEvent() {
-        return this.ventureChatEvent;
-    }
 }

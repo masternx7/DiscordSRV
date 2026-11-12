@@ -51,13 +51,13 @@ public class DiscordConsoleListener extends ListenerAdapter {
         if (DiscordSRV.getPlugin().getConsoleChannel() == null || !event.getChannel().getId().equals(DiscordSRV.getPlugin().getConsoleChannel().getId()))
             return;
         // block bots
-        if (DiscordSRV.config().getBoolean("DiscordConsoleChannelBlockBots") && event.getAuthor().isBot()) {
+        if (DiscordSRV.config().getBoolean("console-channel.block-bots") && event.getAuthor().isBot()) {
             DiscordSRV.debug(Debug.UNCATEGORIZED, "Received a message from a bot in the console channel, but DiscordConsoleChannelBlockBots is enabled");
             return;
         }
 
-        boolean isWhitelist = DiscordSRV.config().getBoolean("DiscordConsoleChannelBlacklistActsAsWhitelist");
-        List<String> blacklistedCommands = DiscordSRV.config().getStringList("DiscordConsoleChannelBlacklistedCommands");
+        boolean isWhitelist = DiscordSRV.config().getBoolean("console-channel.blacklist-acts-as-whitelist");
+        List<String> blacklistedCommands = DiscordSRV.config().getStringList("console-channel.blacklisted-commands");
 
         for (int i = 0; i < blacklistedCommands.size(); i++) blacklistedCommands.set(i, blacklistedCommands.get(i).toLowerCase());
 
@@ -77,7 +77,7 @@ public class DiscordConsoleListener extends ListenerAdapter {
                 );
             } catch (IOException e) {
                 DiscordSRV.error(LangUtil.InternalMessage.ERROR_LOGGING_CONSOLE_ACTION + " " + logFile.getAbsolutePath() + ": " + e.getMessage());
-                if (DiscordSRV.config().getBoolean("CancelConsoleCommandIfLoggingFailed")) return;
+                if (DiscordSRV.config().getBoolean("general.cancel-console-command-if-logging-failed")) return;
             }
         }
 

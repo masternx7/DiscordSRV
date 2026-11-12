@@ -38,7 +38,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
-import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -93,7 +92,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
         // trigger server commands
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         User user = DiscordUtil.getUserById(discordId);
-        for (String command : DiscordSRV.config().getStringList("MinecraftDiscordAccountLinkedConsoleCommands")) {
+        for (String command : DiscordSRV.config().getStringList("account-linking.console-commands")) {
             DiscordSRV.debug(Debug.ACCOUNT_LINKING, "Parsing command /" + command + " for linked commands...");
             command = command
                     .replace("%minecraftplayername%", PrettyUtil.beautifyUsername(offlinePlayer, "[Unknown Player]", false))
@@ -114,7 +113,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
         }
 
         // group sync using the authoritative side
-        if (DiscordSRV.config().getBoolean("GroupRoleSynchronizationOnLink") && DiscordSRV.getPlugin().getGroupSynchronizationManager().getPermissions() != null) {
+        if (DiscordSRV.config().getBoolean("group-role-synchronization.on-link") && DiscordSRV.getPlugin().getGroupSynchronizationManager().getPermissions() != null) {
             DiscordSRV.getPlugin().getGroupSynchronizationManager().resync(
                     offlinePlayer,
                     GroupSynchronizationManager.SyncDirection.AUTHORITATIVE,
@@ -122,7 +121,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
                     GroupSynchronizationManager.SyncCause.PLAYER_LINK
             );
         } else {
-            String roleName = DiscordSRV.config().getString("MinecraftDiscordAccountLinkedRoleNameToAddUserTo");
+            String roleName = DiscordSRV.config().getString("account-linking.role-name-to-add-user-to");
             try {
                 Role roleToAdd = DiscordUtil.resolveRole(roleName);
                 if (roleToAdd != null) {
@@ -141,7 +140,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
         }
 
         // set user's discord nickname as their in-game name
-        if (DiscordSRV.config().getBoolean("NicknameSynchronizationEnabled")) {
+        if (DiscordSRV.config().getBoolean("nickname-synchronization.enabled")) {
             DiscordSRV.getPlugin().getNicknameUpdater().setNickname(DiscordUtil.getMemberById(discordId), offlinePlayer);
         }
     }
@@ -152,7 +151,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
         } else {
             try {
                 // remove user from linked role
-                Role role = DiscordUtil.resolveRole(DiscordSRV.config().getString("MinecraftDiscordAccountLinkedRoleNameToAddUserTo"));
+                Role role = DiscordUtil.resolveRole(DiscordSRV.config().getString("account-linking.role-name-to-add-user-to"));
                 if (role != null) {
                     Member member = role.getGuild().getMemberById(discordId);
                     if (member != null) {
@@ -177,7 +176,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
         // run unlink console commands
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(uuid);
         User user = DiscordUtil.getUserById(discordId);
-        for (String command : DiscordSRV.config().getStringList("MinecraftDiscordAccountUnlinkedConsoleCommands")) {
+        for (String command : DiscordSRV.config().getStringList("account-linking.unlinked-console-commands")) {
             command = command
                     .replace("%minecraftplayername%", PrettyUtil.beautifyUsername(offlinePlayer, "[Unknown player]", false))
                     .replace("%minecraftdisplayname%", PrettyUtil.beautifyNickname(offlinePlayer, "<Unknown name>", false))
@@ -192,7 +191,7 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
             SchedulerUtil.runTask(DiscordSRV.getPlugin(), () -> Bukkit.dispatchCommand(Bukkit.getConsoleSender(), finalCommand));
         }
 
-        if (member != null && DiscordSRV.config().getBoolean("NicknameSynchronizationEnabled")) {
+        if (member != null && DiscordSRV.config().getBoolean("nickname-synchronization.enabled")) {
             if (member.getGuild().getSelfMember().canInteract(member)) {
                 member.modifyNickname(null).queue();
             } else {
@@ -200,10 +199,6 @@ public abstract class AbstractAccountLinkManager implements AccountLinkManager {
             }
         }
 
-        Player player = Bukkit.getPlayer(uuid);
-        if (player != null) {
-            DiscordSRV.getPlugin().getRequireLinkModule().noticePlayerUnlink(player);
-        }
     }
 
 }

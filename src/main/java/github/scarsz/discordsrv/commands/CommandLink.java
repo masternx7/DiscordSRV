@@ -23,6 +23,7 @@ package github.scarsz.discordsrv.commands;
 import github.scarsz.discordsrv.DiscordSRV;
 import github.scarsz.discordsrv.objects.managers.AccountLinkManager;
 import github.scarsz.discordsrv.util.*;
+import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.entities.User;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
@@ -41,6 +42,13 @@ import java.util.List;
 import java.util.UUID;
 
 public class CommandLink {
+
+    private static final LegacyComponentSerializer LINK_SERIALIZER = LegacyComponentSerializer.builder()
+            .character('&')
+            .extractUrls()
+            .hexColors()
+            .useUnusualXRepeatedCharacterHexFormat()
+            .build();
 
     @Command(commandNames = { "link" },
             helpMessage = "Generates a code to link your Minecraft account to your Discord account",
@@ -119,24 +127,44 @@ public class CommandLink {
         } else {
             String code = manager.generateCode(player.getUniqueId());
 
+            String botName = DiscordSRV.getPlugin().getMainGuild().getSelfMember().getEffectiveName();
+            String linkedDiscordId = manager.getDiscordId(player.getUniqueId());
+            User linkedDiscordUser = linkedDiscordId != null ? DiscordUtil.getUserById(linkedDiscordId) : null;
+
+            // send the code to the configured link channel so it can be used with /discord link
+            TextChannel linkChannel = DiscordSRV.getPlugin().getDestinationTextChannelForGameChannelName("link");
+            if (linkChannel != null) {
+                DiscordUtil.sendMessage(linkChannel, LangUtil.Message.LINK_CODE_CHANNEL_MESSAGE.toString()
+                        .replace("%code%", code)
+                        .replace("%player%", player.getName())
+                        .replace("%mention%", linkedDiscordUser != null ? linkedDiscordUser.getAsMention() : "")
+                        .replace("%username%", linkedDiscordUser != null ? linkedDiscordUser.getName() : "")
+                        .replace("%id%", linkedDiscordUser != null ? linkedDiscordUser.getId() : "")
+                        .replace("%botname%", botName)
+                );
+            }
+
             // load message text
             String message = LangUtil.Message.CODE_GENERATED.toString()
                     .replace("%code%", code)
-                    .replace("%botname%", DiscordSRV.getPlugin().getMainGuild().getSelfMember().getEffectiveName());
+                    .replace("%botname%", botName);
             // replace additional placeholders (PlaceholderAPI)
             message = PlaceholderUtil.replacePlaceholders(message, Bukkit.getOfflinePlayer(player.getUniqueId()));
-            // build message component
-            Component component = LegacyComponentSerializer.builder().character('&').extractUrls().build().deserialize(message);
+            message = message.replace("\\n", "\n");
 
             String clickToCopyCode = LangUtil.Message.CLICK_TO_COPY_CODE.toString();
-            if (StringUtils.isNotBlank(clickToCopyCode)) {
-                component = component.clickEvent(ClickEvent.copyToClipboard(code))
-                        .hoverEvent(HoverEvent.showText(
-                                LegacyComponentSerializer.legacy('&').deserialize(clickToCopyCode)
-                        ));
-            }
+            Component hover = StringUtils.isNotBlank(clickToCopyCode)
+                    ? LINK_SERIALIZER.deserialize(clickToCopyCode)
+                    : null;
 
-            MessageUtil.sendMessage(sender, component);
+            for (String line : message.split("\n", -1)) {
+                Component component = LINK_SERIALIZER.deserialize(line);
+                if (hover != null) {
+                    component = component.clickEvent(ClickEvent.copyToClipboard(code))
+                            .hoverEvent(HoverEvent.showText(hover));
+                }
+                MessageUtil.sendMessage(sender, component);
+            }
         }
     }
 

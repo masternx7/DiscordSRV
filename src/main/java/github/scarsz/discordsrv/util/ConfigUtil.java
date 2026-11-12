@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class ConfigUtil {
 
     public static void migrate() {
-        String configVersionRaw = DiscordSRV.config().getString("ConfigVersion");
+        String configVersionRaw = DiscordSRV.config().getString("config-version");
         if (configVersionRaw.contains("/")) configVersionRaw = configVersionRaw.substring(0, configVersionRaw.indexOf("/"));
         if (configVersionRaw.contains("${version}") || configVersionRaw.contains("${project.version}")) configVersionRaw = "0.0.0";
 
@@ -62,17 +62,11 @@ public class ConfigUtil {
         try {
             Provider configProvider = DiscordSRV.config().getProvider("config");
             Provider messageProvider = DiscordSRV.config().getProvider("messages");
-            Provider voiceProvider = DiscordSRV.config().getProvider("voice");
-            Provider linkingProvider = DiscordSRV.config().getProvider("linking");
             Provider synchronizationProvider = DiscordSRV.config().getProvider("synchronization");
-            Provider alertsProvider = DiscordSRV.config().getProvider("alerts");
 
             migrate("config.yml-build." + oldVersionName + ".old", DiscordSRV.getPlugin().getConfigFile(), configProvider);
             migrate("messages.yml-build." + oldVersionName + ".old", DiscordSRV.getPlugin().getMessagesFile(), messageProvider);
-            migrate("voice.yml-build." + oldVersionName + ".old", DiscordSRV.getPlugin().getVoiceFile(), voiceProvider);
-            migrate("linking.yml-build." + oldVersionName + ".old", DiscordSRV.getPlugin().getLinkingFile(), linkingProvider);
             migrate("synchronization.yml-build." + oldVersionName + ".old", DiscordSRV.getPlugin().getSynchronizationFile(), synchronizationProvider);
-            migrate("alerts.yml-build." + oldVersionName + ".old", DiscordSRV.getPlugin().getAlertsFile(), alertsProvider);
             DiscordSRV.info("Successfully migrated configuration files to version " + pluginVersionRaw);
         } catch (Exception e) {
             DiscordSRV.error("Failed migrating configs: " + e.getMessage());
@@ -122,13 +116,13 @@ public class ConfigUtil {
                 continue;
             }
             String key = lineSplit[0].trim();
-            if (key.equals("ConfigVersion")) continue;
+            if (key.equals("config-version")) continue;
             option = key;
             String value = lineSplit[1].trim();
-            if (option.equals("AvatarUrl") && value.contains("https://crafatar.com")) {
+            if (option.equals("avatar-url") && value.contains("https://crafatar.com")) {
                 DiscordSRV.warning("AvatarUrl config option contained \"https://crafatar.com\"; Crafatar no longer allows queries from Discord so the new default provider will be used instead.");
                 value = "\"\"";
-            } else if (option.equals("ProxyHost") && value.equals("\"https://example.com\"")) {
+            } else if (option.equals("proxy.host") && value.equals("\"https://example.com\"")) {
                 value = "\"example.com\"";
             }
             optionValue = new StringBuilder(value);

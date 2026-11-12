@@ -13,12 +13,8 @@ loadbefore: [
   StaffPlus # Log4j conflicts with older versions
 ]
 softdepend: [
-  # Chat plugins
-  Chatty, FancyChat, Herochat, Legendchat, LunaChat, nChat, TownyChat, VentureChat,
-  # Vanish plugins
-  Essentials, PhantomAdmin, SuperVanish,
   # Misc. plugins
-  Multiverse-Core, Vault, PlaceholderAPI, mcMMO, LuckPerms, dynmap, Skript
+  Multiverse-Core, Vault, PlaceholderAPI, LuckPerms, Skript
 ]
 
 commands:
@@ -35,7 +31,6 @@ commands:
            /discord debug - Send debug information to Gist
            /discord reload - Reload the plugin
            /discord resync - Resynchronizes all groups & roles
-           /discord language - Changes the language of DiscordSRV to whatever is specified
            /discord debugger - A toggleable timings-like command to dump debug information to bin.scarsz.me
     permission: discordsrv.discord
 
@@ -65,7 +60,6 @@ permissions:
       discordsrv.unlink.others: true
       discordsrv.resync: true
       discordsrv.groupsyncwithcommands: true
-      discordsrv.language: true
   discordsrv.discord:
     description: allows access to the discord command
     default: true
@@ -119,7 +113,4 @@ permissions:
     default: op
   discordsrv.resync:
     description: whether the player can run /discord resync to force a resync of all groups/roles
-    default: op
-  discordsrv.language:
-    description: whether the player can run /discord language to change the plugin's language
     default: op

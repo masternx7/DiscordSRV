@@ -57,21 +57,21 @@ public class ServerWatchdog extends Thread {
 
         while (true) {
             try {
-                int timeout = DiscordSRV.config().getInt("ServerWatchdogTimeout");
+                int timeout = DiscordSRV.config().getInt("server-watchdog.timeout");
                 if (timeout < 10) timeout = 10; // minimum value
                 if (hasBeenTriggered || TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis() - lastTick) < timeout) {
                     Thread.sleep(1000);
                 } else {
                     hasBeenTriggered = true;
 
-                    if (!DiscordSRV.config().getBoolean("ServerWatchdogEnabled")) {
+                    if (!DiscordSRV.config().getBoolean("server-watchdog.enabled")) {
                         DiscordSRV.debug(Debug.WATCHDOG, "The Server Watchdog would have triggered right now but it was disabled in the config");
                         continue;
                     }
 
                     String channelName = DiscordSRV.getPlugin().getOptionalChannel("watchdog");
                     String message = PlaceholderUtil.replacePlaceholdersToDiscord(LangUtil.Message.SERVER_WATCHDOG.toString());
-                    int count = DiscordSRV.config().getInt("ServerWatchdogMessageCount");
+                    int count = DiscordSRV.config().getInt("server-watchdog.message-count");
 
                     WatchdogMessagePreProcessEvent preEvent = DiscordSRV.api.callEvent(new WatchdogMessagePreProcessEvent(channelName, message, count, false));
                     if (preEvent.isCancelled()) {

@@ -22,12 +22,11 @@ This is our way of getting all the required information to assist you effectivel
 Without this, we can't help.
 
 # Translating
-If you'd like to help DiscordSRV by translating it to a new language, you'll need to fork the repo and make
-edits to your fork's `develop` branch, specifically copy + pasting the English config, messages, synchronization, alerts and voice files and
-translating everything except the names of values. Also, add the language and its associated 639-1 code to
-`src/main/java/github/scarsz/discordsrv/util/LangUtil.java` and translate the messages there.
+The config, messages and synchronization files are single files at the root of `src/main/resources`.
+Translate the values in those files directly. Internal messages can be translated in
+`src/main/java/github/scarsz/discordsrv/util/LangUtil.java`.
 
 # Submitting a pull request
 Submit changes targeting the `develop` branch. PR's to `master` will be denied. Try your best to follow the
-existing coding practices. For config options, follow the way options are named in a PascalCase fashion.
+existing coding practices. Config keys are lower-case and use hyphens, grouped under a section.
 Use lombok `@Getter`'s/`@Setter`'s where applicable.

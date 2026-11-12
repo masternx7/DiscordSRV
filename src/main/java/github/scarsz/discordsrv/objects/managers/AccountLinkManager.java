@@ -20,6 +20,7 @@
 
 package github.scarsz.discordsrv.objects.managers;
 
+import github.scarsz.discordsrv.objects.managers.link.LinkResult;
 import org.bukkit.event.Listener;
 
 import java.io.IOException;
@@ -147,6 +148,9 @@ public interface AccountLinkManager extends Listener {
     String generateCode(UUID playerUuid);
     Map<String, UUID> getLinkingCodes();
     String process(String linkCode, String discordId);
+    default LinkResult processLink(String linkCode, String discordId) {
+        return new LinkResult(process(linkCode, discordId), false, null, discordId);
+    }
     void link(String discordId, UUID uuid);
     void unlink(UUID uuid);
     void unlink(String discordId);

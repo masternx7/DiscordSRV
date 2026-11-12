@@ -110,7 +110,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
 
         Set<OfflinePlayer> players = new HashSet<>(PlayerUtil.getOnlinePlayers());
 
-        if (DiscordSRV.config().getBoolean("GroupRoleSynchronizationCycleCompletely")) {
+        if (DiscordSRV.config().getBoolean("group-role-synchronization.cycle-completely")) {
             // synchronize everyone in the connected discord servers
             // otherwise, only online players are synchronized
             DiscordUtil.getJda().getGuilds().stream()
@@ -183,9 +183,9 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
         Map<Guild, Map<String, Set<Role>>> roleChanges = new HashMap<>();
 
         // Check if Minecraft or Discord is strictly authoritative.
-        boolean oneWaySynchronisation = DiscordSRV.config().getBoolean("GroupRoleSynchronizationOneWay");
-        boolean minecraftIsStrictlyAuthoritative = oneWaySynchronisation && DiscordSRV.config().getBoolean("GroupRoleSynchronizationMinecraftIsAuthoritative");
-        boolean discordIsStrictlyAuthoritative = oneWaySynchronisation && !DiscordSRV.config().getBoolean("GroupRoleSynchronizationMinecraftIsAuthoritative");
+        boolean oneWaySynchronisation = DiscordSRV.config().getBoolean("group-role-synchronization.one-way");
+        boolean minecraftIsStrictlyAuthoritative = oneWaySynchronisation && DiscordSRV.config().getBoolean("group-role-synchronization.minecraft-is-authoritative");
+        boolean discordIsStrictlyAuthoritative = oneWaySynchronisation && !DiscordSRV.config().getBoolean("group-role-synchronization.minecraft-is-authoritative");
         if (oneWaySynchronisation) synchronizationSummary.add("Synchronisation is one way (" + (minecraftIsStrictlyAuthoritative ? "Minecraft -> Discord" : "Discord -> Minecraft") + ")");
 
         if ((minecraftIsStrictlyAuthoritative && direction == SyncDirection.TO_MINECRAFT) || (discordIsStrictlyAuthoritative && direction == SyncDirection.TO_DISCORD)) {
@@ -250,7 +250,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
                 continue;
             }
 
-            boolean primaryGroupOnly = DiscordSRV.config().getBoolean("GroupRoleSynchronizationPrimaryGroupOnly");
+            boolean primaryGroupOnly = DiscordSRV.config().getBoolean("group-role-synchronization.primary-group-only");
             if (!vaultGroupsLogged) {
                 synchronizationSummary.add("Player " + player.getName() + "'s " +
                         (primaryGroupOnly ? "Primary group: " + getPermissions().getPrimaryGroup(null, player) + ", " : "")
@@ -269,7 +269,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
                     hasGroup = true;
                     groupsGrantedByPermission.add(groupName);
                 }
-                if (DiscordSRV.config().getBoolean("GroupRoleSynchronizationEnableDenyPermission") &&
+                if (DiscordSRV.config().getBoolean("group-role-synchronization.enable-deny-permission") &&
                         getPermissions().playerHas(null, player, "discordsrv.sync.deny." + groupName)) {
                     hasGroup = false;
                     groupsDeniedByPermission.add(groupName);
@@ -290,7 +290,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
             boolean minecraftIsAuthoritative = minecraftIsStrictlyAuthoritative
                 || (!roleIsManaged
                     && !discordIsStrictlyAuthoritative
-                    && (direction == SyncDirection.AUTHORITATIVE ? DiscordSRV.config().getBoolean("GroupRoleSynchronizationMinecraftIsAuthoritative") : direction == SyncDirection.TO_DISCORD));
+                    && (direction == SyncDirection.AUTHORITATIVE ? DiscordSRV.config().getBoolean("group-role-synchronization.minecraft-is-authoritative") : direction == SyncDirection.TO_DISCORD));
 
             if (hasGroup == hasRole) {
                 // both sides agree, no changes necessary
@@ -375,7 +375,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
 
         if (addLinkedRole) {
             try {
-                Role role = DiscordUtil.resolveRole(DiscordSRV.config().getString("MinecraftDiscordAccountLinkedRoleNameToAddUserTo"));
+                Role role = DiscordUtil.resolveRole(DiscordSRV.config().getString("account-linking.role-name-to-add-user-to"));
                 if (role != null) {
                     roleChanges.computeIfAbsent(role.getGuild(), guild -> new HashMap<>())
                             .computeIfAbsent("add", s -> new HashSet<>())
@@ -514,7 +514,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
     }
 
     public void removeSynchronizables(OfflinePlayer player) {
-        if (!DiscordSRV.config().getBoolean("GroupRoleSynchronizationMinecraftIsAuthoritative")) {
+        if (!DiscordSRV.config().getBoolean("group-role-synchronization.minecraft-is-authoritative")) {
             // Discord is authoritative, remove minecraft groups
             Permission permission = getPermissions();
 
@@ -547,7 +547,7 @@ public class GroupSynchronizationManager extends ListenerAdapter implements List
 
             try {
                 // remove user from linked role
-                String linkRole = DiscordSRV.config().getString("MinecraftDiscordAccountLinkedRoleNameToAddUserTo");
+                String linkRole = DiscordSRV.config().getString("account-linking.role-name-to-add-user-to");
                 Role role = StringUtils.isNotBlank(linkRole) ? DiscordUtil.resolveRole(linkRole) : null;
                 if (role != null) {
                     roles.computeIfAbsent(role.getGuild(), guild -> new HashSet<>()).add(role);

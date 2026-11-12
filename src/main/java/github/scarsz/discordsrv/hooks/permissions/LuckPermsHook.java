@@ -64,7 +64,7 @@ public class LuckPermsHook implements PluginHook, net.luckperms.api.context.Cont
         }
 
         // update events
-        if (!DiscordSRV.config().getStringList("DisabledPluginHooks").contains("LuckPerms-GroupUpdates")) {
+        if (!DiscordSRV.config().getStringList("plugin-hooks.disabled").contains("LuckPerms-GroupUpdates")) {
             DiscordSRV.debug("Enabling LuckPerms' instant group updates");
             subscriptions.add(luckPerms.getEventBus().subscribe(net.luckperms.api.event.user.track.UserTrackEvent.class, event -> handle(event.getUser().getUniqueId())));
             subscriptions.add(luckPerms.getEventBus().subscribe(net.luckperms.api.event.node.NodeAddEvent.class, event -> handle(event, event.getNode(), true)));
@@ -74,7 +74,7 @@ public class LuckPermsHook implements PluginHook, net.luckperms.api.context.Cont
         }
 
         // contexts
-        if (!DiscordSRV.config().getStringList("DisabledPluginHooks").contains("LuckPerms-Contexts")) {
+        if (!DiscordSRV.config().getStringList("plugin-hooks.disabled").contains("LuckPerms-Contexts")) {
             DiscordSRV.debug("Enabling LuckPerms' contexts");
             luckPerms.getContextManager().registerCalculator(this);
         } else {

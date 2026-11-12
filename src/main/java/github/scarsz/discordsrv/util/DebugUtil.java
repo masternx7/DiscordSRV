@@ -31,9 +31,7 @@ import github.scarsz.discordsrv.api.events.DebugReportedEvent;
 import github.scarsz.discordsrv.hooks.PluginHook;
 import github.scarsz.discordsrv.hooks.SkriptHook;
 import github.scarsz.discordsrv.hooks.VaultHook;
-import github.scarsz.discordsrv.hooks.chat.TownyChatHook;
 import github.scarsz.discordsrv.listeners.DiscordDisconnectListener;
-import github.scarsz.discordsrv.modules.voice.VoiceModule;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.*;
 import net.dv8tion.jda.api.requests.CloseCode;
@@ -74,9 +72,9 @@ import java.util.zip.ZipOutputStream;
 public class DebugUtil {
 
     public static final List<String> SENSITIVE_OPTIONS = Arrays.asList(
-        "BotToken",
-        "Experiment_JdbcAccountLinkBackend", "Experiment_JdbcUsername", "Experiment_JdbcPassword",
-        "ProxyHost", "ProxyPort", "ProxyUser", "ProxyPassword"
+        "bot.token",
+        "experiments.jdbc.account-link-backend", "experiments.jdbc.username", "experiments.jdbc.password",
+        "proxy.host", "proxy.port", "proxy.user", "proxy.password"
     );
     public static int initializationCount = 0;
 
@@ -94,7 +92,7 @@ public class DebugUtil {
             files.add(fileMap("discordsrv-info.txt", "general information about the plugin", String.join("\n", new String[]{
                     "Version information:",
                     "   plugin version: " + DiscordSRV.getPlugin(),
-                    "   config version: " + DiscordSRV.config().getString("ConfigVersion"),
+                    "   config version: " + DiscordSRV.config().getString("config-version"),
                     "   build date: " + ManifestUtil.getManifestValue("Build-Date"),
                     "   build git revision: " + ManifestUtil.getManifestValue("Git-Revision"),
                     "   build number: " + ManifestUtil.getManifestValue("Build-Number"),
@@ -124,10 +122,7 @@ public class DebugUtil {
             files.add(fileMap("config.yml", "raw plugins/DiscordSRV/config.yml", FileUtils.readFileToString(DiscordSRV.getPlugin().getConfigFile(), StandardCharsets.UTF_8)));
             files.add(fileMap("config-active.yml", "active plugins/DiscordSRV/config.yml", getActiveConfig()));
             files.add(fileMap("messages.yml", "raw plugins/DiscordSRV/messages.yml", FileUtils.readFileToString(DiscordSRV.getPlugin().getMessagesFile(), StandardCharsets.UTF_8)));
-            files.add(fileMap("voice.yml", "raw plugins/DiscordSRV/voice.yml", FileUtils.readFileToString(DiscordSRV.getPlugin().getVoiceFile(), StandardCharsets.UTF_8)));
-            files.add(fileMap("linking.yml", "raw plugins/DiscordSRV/linking.yml", FileUtils.readFileToString(DiscordSRV.getPlugin().getLinkingFile(), StandardCharsets.UTF_8)));
             files.add(fileMap("synchronization.yml", "raw plugins/DiscordSRV/synchronization.yml", FileUtils.readFileToString(DiscordSRV.getPlugin().getSynchronizationFile(), StandardCharsets.UTF_8)));
-            files.add(fileMap("alerts.yml", "raw plugins/DiscordSRV/alerts.yml", FileUtils.readFileToString(DiscordSRV.getPlugin().getAlertsFile(), StandardCharsets.UTF_8)));
             files.add(fileMap("server-info.txt", null, getServerInfo()));
             files.add(fileMap("logger-details.txt", null, getLoggerInfo()));
             files.add(fileMap("registered-listeners.txt", "list of registered listeners for Bukkit events DiscordSRV uses", getRegisteredListeners()));
@@ -308,13 +303,13 @@ public class DebugUtil {
             }
         }
 
-        String consoleChannelId = DiscordSRV.config().getString("DiscordConsoleChannelId");
+        String consoleChannelId = DiscordSRV.config().getString("channels.console-id");
         if (consoleChannelId != null && !consoleChannelId.matches("^0*$")
                 && DiscordSRV.getPlugin().getChannels().values().stream().filter(Objects::nonNull).anyMatch(channelId -> channelId.equals(consoleChannelId))) {
             messages.add(new Message(Message.Type.CONSOLE_AND_CHAT_SAME_CHANNEL));
         }
 
-        String roleName = DiscordSRV.config().getStringElse("MinecraftDiscordAccountLinkedRoleNameToAddUserTo", null);
+        String roleName = DiscordSRV.config().getStringElse("account-linking.role-name-to-add-user-to", null);
         if (DiscordUtil.getJda() != null && roleName != null) {
             try {
                 Role role = DiscordUtil.resolveRole(roleName);
@@ -322,17 +317,6 @@ public class DebugUtil {
                     messages.add(new Message(Message.Type.LINKED_ROLE_GROUP_SYNC));
                 }
             } catch (Throwable ignored) {}
-        }
-
-        if (PluginUtil.pluginHookIsEnabled("TownyChat")) {
-            try {
-                String mainChannelName = TownyChatHook.getMainChannelName();
-                if (mainChannelName != null && !DiscordSRV.getPlugin().getChannels().containsKey(mainChannelName)) {
-                    messages.add(new Message(Message.Type.NO_TOWNY_MAIN_CHANNEL, mainChannelName));
-                }
-            } catch (Throwable ignored) {
-                // didn't work
-            }
         }
 
         if (!DiscordSRV.config().getBooleanElse("RespectChatPlugins", true)) {
@@ -453,26 +437,6 @@ public class DebugUtil {
             if (DiscordUtil.checkPermission(mainGuild, Permission.NICKNAME_MANAGE)) guildPermissions.add("nickname-manage");
             if (DiscordUtil.checkPermission(mainGuild, Permission.MANAGE_WEBHOOKS)) guildPermissions.add("manage-webhooks");
             output.add("main guild -> " + mainGuild + " [" + String.join(", ", guildPermissions) + "]");
-        }
-
-        VoiceChannel lobbyChannel = VoiceModule.getLobbyChannel();
-        if (lobbyChannel == null) {
-            output.add("voice lobby -> null");
-        } else {
-            List<String> channelPermissions = new ArrayList<>();
-            if (DiscordUtil.checkPermission(lobbyChannel, Permission.VOICE_MOVE_OTHERS)) channelPermissions.add("move-members");
-            output.add("voice lobby -> " + lobbyChannel + " [" + String.join(", ", channelPermissions) + "]");
-
-            Category category = lobbyChannel.getParent();
-            if (category == null) {
-                output.add("voice category -> null");
-            } else {
-                List<String> categoryPermissions = new ArrayList<>();
-                if (DiscordUtil.checkPermission(category, Permission.VOICE_MOVE_OTHERS)) categoryPermissions.add("move-members");
-                if (DiscordUtil.checkPermission(category, Permission.MANAGE_CHANNEL)) categoryPermissions.add("manage-channel");
-                if (DiscordUtil.checkPermission(category, Permission.MANAGE_PERMISSIONS)) categoryPermissions.add("manage-permissions");
-                output.add("voice category -> " + category + " [" + String.join(", ", categoryPermissions) + "]");
-            }
         }
 
         TextChannel consoleChannel = DiscordSRV.getPlugin().getConsoleChannel();
@@ -819,7 +783,6 @@ public class DebugUtil {
             ),
             PLUGIN_RELOADED(false, "Plugin has been initialized more than once (aka \"reloading\"). You will not receive support in this state."),
             INVALID_CHANNEL(false, "Invalid Channel %s (not found)"),
-            NO_TOWNY_MAIN_CHANNEL(false, "No channel hooked to Towny's default channel: %s"),
             CONSOLE_AND_CHAT_SAME_CHANNEL(false, LangUtil.InternalMessage.CONSOLE_CHANNEL_ASSIGNED_TO_LINKED_CHANNEL.getDefinitions().get(Language.EN)),
             NOT_IN_ANY_SERVERS(false, LangUtil.InternalMessage.BOT_NOT_IN_ANY_SERVERS.getDefinitions().get(Language.EN)),
             NOT_CONNECTED(false, "Not connected to Discord!"),
@@ -829,7 +792,7 @@ public class DebugUtil {
                     "try to reproduce your problem and then run /discordsrv debugger upload to generate another report."
             ),
             UPDATE_AVAILABLE(false, "Update available. Download: https://get.discordsrv.com / https://snapshot.discordsrv.com"),
-            LINKED_ROLE_GROUP_SYNC(false, "Cannot have the role in MinecraftDiscordAccountLinkedRoleNameToAddUserTo as a role in GroupRoleSynchronizationGroupsAndRolesToSync");
+            LINKED_ROLE_GROUP_SYNC(false, "Cannot have the role in MinecraftDiscordAccountLinkedRoleNameToAddUserTo as a role in group-role-synchronization.groups-and-roles-to-sync");
 
             private final boolean warning;
             private final String message;

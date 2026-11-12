@@ -37,10 +37,10 @@ public class DiscordChatChannelCommandFeedbackForwarder {
         this.event = event;
 
         // expire request message after specified time
-        if (DiscordSRV.config().getInt("DiscordChatChannelConsoleCommandExpiration") > 0 && DiscordSRV.config().getBoolean("DiscordChatChannelConsoleCommandExpirationDeleteRequest")) {
+        if (DiscordSRV.config().getInt("chat-channel.console-command.expiration") > 0 && DiscordSRV.config().getBoolean("chat-channel.console-command.expiration-delete-request")) {
             SchedulerUtil.runTaskLaterAsynchronously(DiscordSRV.getPlugin(), () -> {
                 event.getMessage().delete().queue();
-            }, DiscordSRV.config().getInt("DiscordChatChannelConsoleCommandExpiration") * 20L); // Seconds to ticks
+            }, DiscordSRV.config().getInt("chat-channel.console-command.expiration") * 20L); // Seconds to ticks
         }
     }
 
@@ -48,7 +48,7 @@ public class DiscordChatChannelCommandFeedbackForwarder {
         if (this.bufferCollecting) { // If the buffer has started collecting messages, we should just add this one to it.
             if (DiscordUtil.escapeMarkdown(this.messageBuffer + "\n" + message).length() > 1998) { // If the message will be too long (allowing for markdown escaping and the newline)
                 // Send the message, then clear the buffer and add this message to the empty buffer
-                DiscordUtil.sendMessage(event.getChannel(), DiscordUtil.escapeMarkdown(this.messageBuffer.toString()), DiscordSRV.config().getInt("DiscordChatChannelConsoleCommandExpiration") * 1000);
+                DiscordUtil.sendMessage(event.getChannel(), DiscordUtil.escapeMarkdown(this.messageBuffer.toString()), DiscordSRV.config().getInt("chat-channel.console-command.expiration") * 1000);
                 this.messageBuffer = new StringJoiner("\n");
                 this.messageBuffer.add(message);
             } else { // If adding this message to the buffer won't send it over the 2000 character limit
@@ -60,7 +60,7 @@ public class DiscordChatChannelCommandFeedbackForwarder {
             SchedulerUtil.runTaskLater(DiscordSRV.getPlugin(), () -> { // Collect messages for 3 ticks, then send
                 this.bufferCollecting = false;
                 if (this.messageBuffer.length() == 0) return; // There's nothing in the buffer to send, leave it
-                DiscordUtil.sendMessage(event.getChannel(), DiscordUtil.escapeMarkdown(this.messageBuffer.toString()), DiscordSRV.config().getInt("DiscordChatChannelConsoleCommandExpiration") * 1000);
+                DiscordUtil.sendMessage(event.getChannel(), DiscordUtil.escapeMarkdown(this.messageBuffer.toString()), DiscordSRV.config().getInt("chat-channel.console-command.expiration") * 1000);
                 this.messageBuffer = new StringJoiner("\n");
             }, 3L);
         }

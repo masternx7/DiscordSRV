@@ -25,6 +25,7 @@ import lombok.Getter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 @SuppressWarnings("SpellCheckingInspection")
@@ -35,10 +36,7 @@ public enum Debug {
 
     GROUP_SYNC("group", "groups", "gsync", "role", "roles", "groupsync", "rolesync"),
     PRESENCE("game", "gamestatus", "playing", "playingstatus", "status"),
-    VOICE("voicemodule"),
-    REQUIRE_LINK("requirelink", "requirelink2play", "requirelinktoplay", "link2play", "linktoplay"),
     NICKNAME_SYNC("nickname", "nicknamesync"),
-    ALERTS("alert"),
     WATCHDOG("watchdog"),
     BAN_SYNCHRONIZATION("ban", "bans"),
     LP_CONTEXTS("luckpermscontexts", "luckpermscontext", "lpcontexts", "lpcontext"),
@@ -58,10 +56,11 @@ public enum Debug {
     }
 
     public boolean matches(String s) {
-        return (s.equalsIgnoreCase("all") && this != CALLSTACKS && this != JDA && this != JDA_REST_ACTIONS)
-                || s.equalsIgnoreCase("chat") && (this == MINECRAFT_TO_DISCORD || this == DISCORD_TO_MINECRAFT)
-                || s.equalsIgnoreCase(name())
-                || Arrays.stream(aliases).anyMatch(s::equalsIgnoreCase);
+        String normalized = s.toLowerCase(Locale.ROOT).replace('-', '_');
+        return (normalized.equals("all") && this != CALLSTACKS && this != JDA && this != JDA_REST_ACTIONS)
+                || normalized.equals("chat") && (this == MINECRAFT_TO_DISCORD || this == DISCORD_TO_MINECRAFT)
+                || normalized.equals(name().toLowerCase(Locale.ROOT))
+                || Arrays.stream(aliases).anyMatch(alias -> alias.equalsIgnoreCase(normalized));
     }
 
     public boolean isVisible() {
@@ -70,7 +69,7 @@ public enum Debug {
             return true;
         }
 
-        List<?> debug = DiscordSRV.config().getOptionalList("Debug").orElse(Collections.emptyList());
+        List<?> debug = DiscordSRV.config().getOptionalList("debug").orElse(Collections.emptyList());
         return debug.stream()
                 .filter(obj -> obj instanceof String)
                 .map(str -> (String) str)

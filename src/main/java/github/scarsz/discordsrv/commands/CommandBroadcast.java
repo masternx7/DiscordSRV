@@ -67,11 +67,11 @@ public class CommandBroadcast {
         } else {
             String rawMessage = String.join(" ", finalArgs).replace("\\n", "\n");
             rawMessage = PlaceholderUtil.replacePlaceholdersToDiscord(rawMessage);
-            if (DiscordSRV.config().getBoolean("DiscordChatChannelTranslateMentions"))
+            if (DiscordSRV.config().getBoolean("chat-channel.translate-mentions"))
                 rawMessage = DiscordUtil.convertMentionsFromNames(rawMessage, DiscordSRV.getPlugin().getMainGuild());
             rawMessage = PlayerUtil.convertTargetSelectors(rawMessage, sender);
 
-            if (DiscordSRV.config().getBoolean("Experiment_MCDiscordReserializer_InBroadcast")) {
+            if (DiscordSRV.config().getBoolean("experiments.reserializer.in-broadcast")) {
                 DiscordUtil.queueMessage(
                         target,
                         MessageUtil.reserializeToDiscord(MessageUtil.toComponent(MessageUtil.translateLegacy(rawMessage))),

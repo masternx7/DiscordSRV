@@ -50,7 +50,7 @@ public class DiscordBanListener extends ListenerAdapter {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(linkedUuid);
         if (!offlinePlayer.hasPlayedBefore()) return;
 
-        if (!DiscordSRV.config().getBoolean("BanSynchronizationDiscordToMinecraft")) {
+        if (!DiscordSRV.config().getBoolean("ban-synchronization.discord-to-minecraft")) {
             DiscordSRV.debug(Debug.BAN_SYNCHRONIZATION, "Not handling ban for user " + event.getUser() + " because doing so is disabled in the config");
             return;
         }
@@ -77,7 +77,7 @@ public class DiscordBanListener extends ListenerAdapter {
         OfflinePlayer offlinePlayer = Bukkit.getOfflinePlayer(linkedUuid);
         if (!offlinePlayer.hasPlayedBefore()) return;
 
-        if (!DiscordSRV.config().getBoolean("BanSynchronizationDiscordToMinecraft")) {
+        if (!DiscordSRV.config().getBoolean("ban-synchronization.discord-to-minecraft")) {
             DiscordSRV.debug(Debug.BAN_SYNCHRONIZATION, "Not handling unban for user " + event.getUser() + " because doing so is disabled in the config");
             return;
         }

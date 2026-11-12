@@ -49,10 +49,10 @@ public class NicknameUpdater extends Thread {
     @Override
     public void run() {
         while (true) {
-            int rate = DiscordSRV.config().getInt("NicknameSynchronizationCycleTime");
+            int rate = DiscordSRV.config().getInt("nickname-synchronization.cycle-time");
             if (rate < 3) rate = 3;
 
-            if (DiscordSRV.config().getBoolean("NicknameSynchronizationEnabled")) {
+            if (DiscordSRV.config().getBoolean("nickname-synchronization.enabled")) {
                 DiscordSRV.debug(Debug.NICKNAME_SYNC, "Synchronizing nicknames...");
 
                 // Fix NPE with AccountLinkManager
@@ -135,7 +135,7 @@ public class NicknameUpdater extends Thread {
             }
 
             DiscordSRV.debug(Debug.NICKNAME_SYNC, "Syncing nickname for " + player.getName());
-            nickname = DiscordSRV.config().getString("NicknameSynchronizationFormat")
+            nickname = DiscordSRV.config().getString("nickname-synchronization.format")
                     .replace("%displayname%", player.getDisplayName() != null ? player.getDisplayName() : player.getName())
                     .replace("%username%", player.getName())
                     .replace("%discord_name%", member.getUser().getName())
