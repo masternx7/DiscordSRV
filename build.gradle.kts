@@ -256,11 +256,6 @@ dependencies {
     implementation("com.github.kevinsawicki:http-request:6.0")
     implementation("org.minidns:minidns-hla:1.0.4")
     implementation("com.hrakaroo:glob:0.9.0")
-    implementation("org.springframework:spring-expression:5.3.16") {
-        // exclude Spring's org.apache.commons.logging adapter in favor of
-        // jcl-over-slf4j for better compatability with old log4j versions
-        exclude("spring-jcl")
-    }
 
     ///
     /// Plugin Hooks

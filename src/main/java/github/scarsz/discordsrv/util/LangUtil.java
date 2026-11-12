@@ -856,7 +856,6 @@ public class LangUtil {
         DISCORD_ACCOUNT_LINKED("DiscordAccountLinked", false),
         FAILED_TO_CHECK_LINKED_ACCOUNT("DiscordLinkedAccountCheckFailed", false),
         INVALID_CODE("InvalidCode", false),
-        LINK_CODE_CHANNEL_MESSAGE("LinkCodeChannelMessage", false),
         LINK_COMMAND_WRONG_CHANNEL("LinkCommandWrongChannel", false),
         LINKED_SUCCESS("LinkedCommandSuccess", true),
         LINKED_ACCOUNT_REQUIRED("DiscordLinkedAccountRequired", false),

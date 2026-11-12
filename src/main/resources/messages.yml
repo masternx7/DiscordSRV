@@ -408,7 +408,6 @@ CodeGenerated:
   - "&#baffc9รหัสเชื่อมต่อของคุณคือ %code%"
   - "&#baffc9ใช้คำสั่ง `/discord link code:%code%` ในห้องเชื่อมต่อบน Discord"
   - "&#baffc9หรือส่งข้อความส่วนตัวหาบอท (%botname%) ด้วยรหัสนี้เพื่อเชื่อมต่อบัญชีของคุณ"
-LinkCodeChannelMessage: "%mention% Link code for **%player%**: `%code%`\nUse `/discord link code:%code%` in this channel to link your account."
 LinkCommandWrongChannel: "Use `/discord link code:<code>` in %channel%."
 ClickToCopyCode: "Click to copy"
 MinecraftAccountLinked: "&bYour UUID has been linked to Discord user %username% (%id%)"

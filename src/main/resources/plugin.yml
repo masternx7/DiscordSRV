@@ -7,6 +7,9 @@ website: https://github.com/DiscordSRV/DiscordSRV
 api-version: 1.13
 folia-supported: true
 
+libraries:
+  - mysql:mysql-connector-java:8.0.28
+
 main: github.scarsz.discordsrv.DiscordSRV
 database: false
 loadbefore: [
