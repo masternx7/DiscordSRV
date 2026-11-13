@@ -261,6 +261,9 @@ dependencies {
     /// Plugin Hooks
     ///
 
+    // chat hooks
+    compileOnly("mineverse.aust1n46:venturechat:2.20.1")
+
     // permissions hooks
     compileOnly("net.luckperms:api:5.4")
 
